@@ -186,6 +186,11 @@ public class GdeltZipSource extends ExternalSource {
         return new CompiledTestSource(copyOf());
     }
 
+    @Override
+    public CompiledExternalSource compile(String json) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     static class CompiledTestSource implements CompiledExternalSource {
 
         private final GdeltZipSource source;

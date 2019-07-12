@@ -164,6 +164,11 @@ public class PearsonsCorrelationProcessor extends Processor<Pair<Double, Double>
         return correlation;
     }
 
+    @Override
+    public CompiledProcessor<Pair<Double, Double>> compile(String json) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     static class CompiledCorrelation extends CompiledProcessor<Pair<Double, Double>> {
         private final String firstAttributeName;
         private final String secondAttributeName;

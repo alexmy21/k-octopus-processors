@@ -167,6 +167,11 @@ public class RTCcontroller extends Processor<Void> {
         return rtc;
     }
 
+    @Override
+    public CompiledProcessor<Void> compile(String json) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     /**
      * This {@link CompiledProcessor} is the actual logic that implements the
      * Simple Moving Average.

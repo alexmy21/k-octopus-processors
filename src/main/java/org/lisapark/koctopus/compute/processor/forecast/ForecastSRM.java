@@ -285,6 +285,11 @@ public class ForecastSRM extends Processor<Double> {
         return regression;
     }
 
+    @Override
+    public CompiledProcessor<Double> compile(String json) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     static class CompiledRegression extends CompiledProcessor<Double> {
         
         private final static java.util.logging.Logger logger 

@@ -171,6 +171,11 @@ public class DbScannerSource  extends ExternalSource {
         return new CompiledDbScannerSource(this.copyOf());
     }
 
+    @Override
+    public CompiledExternalSource compile(String json) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     private static class CompiledDbScannerSource implements CompiledExternalSource {
         private final DbScannerSource source;
 

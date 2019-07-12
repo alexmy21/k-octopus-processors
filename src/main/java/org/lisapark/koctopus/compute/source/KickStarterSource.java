@@ -147,6 +147,11 @@ public class KickStarterSource extends ExternalSource {
         return new CompiledModelSource(copyOf());
     }
 
+    @Override
+    public CompiledExternalSource compile(String json) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     class CompiledModelSource implements CompiledExternalSource {
 
         protected final Logger logger = Logger.getLogger(CompiledModelSource.class.getName());

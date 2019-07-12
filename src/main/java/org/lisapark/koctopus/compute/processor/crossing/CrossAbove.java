@@ -152,6 +152,11 @@ public class CrossAbove extends Processor<Pair> {
         return crossAbove;
     }
 
+    @Override
+    public CompiledProcessor<Pair> compile(String json) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     static class CompiledCrossAbove extends CompiledProcessor<Pair> {
         private final String firstAttributeName;
         private final String secondAttributeName;

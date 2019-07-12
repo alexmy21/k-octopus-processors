@@ -101,6 +101,11 @@ public class RTCSource extends ExternalSource {
         return new CompiledRedisSource(copyOf());
     }
 
+    @Override
+    public CompiledExternalSource compile(String json) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     class CompiledRedisSource implements CompiledExternalSource {
 
         protected final Logger logger = Logger.getLogger(CompiledRedisSource.class.getName());

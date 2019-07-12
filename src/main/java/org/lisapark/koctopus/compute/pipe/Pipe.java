@@ -88,10 +88,11 @@ public class Pipe extends Processor<Integer> {
     }
 
     /**
-     * Validates and compile this Pipe. Doing so takes a "snapshot" of the {@link #getInputs()} and {@link #output}
+     * Validates and compile this Pipe.Doing so takes a "snapshot" of the {@link #getInputs()} and {@link #output}
      * and returns a {@link CompiledProcessor}.
      *
      * @return CompiledProcessor
+     * @throws org.lisapark.koctopus.core.ValidationException
      */
     @Override
     public CompiledProcessor<Integer> compile() throws ValidationException {
@@ -127,6 +128,11 @@ public class Pipe extends Processor<Integer> {
         }
 
         return pipe;
+    }
+
+    @Override
+    public CompiledProcessor<Integer> compile(String json) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     /**

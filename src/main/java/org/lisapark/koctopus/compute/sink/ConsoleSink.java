@@ -126,6 +126,11 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
         return new CompiledConsole(copyOf());
     }
 
+    @Override
+    public CompiledExternalSink compile(String json) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     static class CompiledConsole extends CompiledExternalSink {
         
         private ConsoleSink consoleSink; 
