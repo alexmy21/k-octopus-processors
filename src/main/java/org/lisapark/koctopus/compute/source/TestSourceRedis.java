@@ -40,49 +40,58 @@ import org.openide.util.Exceptions;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class TestSource extends ExternalSource {
+public class TestSourceRedis extends ExternalSource {
 
-    private static final String DEFAULT_NAME = "Test data source";
+    private static final String DEFAULT_NAME = "Test data source for Redis";
     private static final String DEFAULT_DESCRIPTION = "Generate source data according to the provided attribute list.";
 
     private static final int NUMBER_OF_EVENTS_PARAMETER_ID = 1;
+    private static final int TRANSPORT_PARAMETER_ID = 2;
 
-    public TestSource(UUID id, String name, String description) {
+    private static void initAttributeList(TestSourceRedis testSource)  throws ValidationException {
+        testSource.getOutput().addAttribute(Attribute.newAttribute(Integer.class, "Att"));
+    }
+
+    public TestSourceRedis(UUID id, String name, String description) {
         super(id, name, description);
     }
 
-    private TestSource(UUID id, TestSource copyFromSource) {
+    private TestSourceRedis(UUID id, TestSourceRedis copyFromSource) {
         super(id, copyFromSource);
     }
 
-    public TestSource(TestSource copyFromSource) {
+    public TestSourceRedis(TestSourceRedis copyFromSource) {
         super(copyFromSource);
     }
 
     public Integer getNumberOfEvents() {
         return getParameter(NUMBER_OF_EVENTS_PARAMETER_ID).getValueAsInteger();
     }
-
-    @Override
-    public TestSource copyOf() {
-        return new TestSource(this);
+    
+    public String getRedisUrl(){
+        return getParameterValueAsString(TRANSPORT_PARAMETER_ID);
     }
 
     @Override
-    public TestSource newInstance() {
+    public TestSourceRedis copyOf() {
+        return new TestSourceRedis(this);
+    }
+
+    @Override
+    public TestSourceRedis newInstance() {
         UUID sourceId = UUID.randomUUID();
-        return new TestSource(sourceId, this);
+        return new TestSourceRedis(sourceId, this);
     }
 
     @Override
-    public TestSource newInstance(String json) {
+    public TestSourceRedis newInstance(String json) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public static TestSource newTemplate() {
+    public static TestSourceRedis newTemplate() {
         UUID sourceId = UUID.randomUUID();
 
-        TestSource testSource = new TestSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+        TestSourceRedis testSource = new TestSourceRedis(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         testSource.setOutput(Output.outputWithId(1).setName("Output"));
         testSource.addParameter(
                 Parameter.integerParameterWithIdAndName(NUMBER_OF_EVENTS_PARAMETER_ID, "Number of Events").
@@ -90,6 +99,17 @@ public class TestSource extends ExternalSource {
                         defaultValue(10).
                         constraint(Constraints.integerConstraintWithMinimumAndMessage(1,
                         "Number of events has to be greater than zero.")));
+        testSource.addParameter(
+                Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Redis URL").
+                        description("Redis URL.").
+                        defaultValue("redis://localhost").
+                        constraint(Constraints.classConstraintWithMessage("Redis URL cannot be null.")));
+        try {
+            initAttributeList(testSource);
+        } catch (ValidationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        
         return testSource;
     }
 
@@ -100,7 +120,7 @@ public class TestSource extends ExternalSource {
 
     static class CompiledTestSource implements CompiledExternalSource {
 
-        private final TestSource source;
+        private final TestSourceRedis source;
 
         /**
          * Running is declared volatile because it may be access my different threads
@@ -108,13 +128,14 @@ public class TestSource extends ExternalSource {
         private volatile boolean running;
         private final long SLIEEP_TIME = 1L;
 
-        public CompiledTestSource(TestSource source) {
+        public CompiledTestSource(TestSourceRedis source) {
             this.source = source;
         }
 
         @Override
-        public void startProcessingEvents(ProcessingRuntime runtime) {
+        public void startProcessingEvents(StreamProcessingRuntime runtime) {
             Thread thread = Thread.currentThread();
+            runtime.start();
             running = true;
 
             EventType eventType = source.getOutput().getEventType();
@@ -124,7 +145,7 @@ public class TestSource extends ExternalSource {
             while (!thread.isInterrupted() && running && numberEventsCreated < source.getNumberOfEvents()) {
                 Event e = createEvent(attributes, numberEventsCreated++);
 
-                runtime.sendEventFromSource(e, source);
+                runtime.sendEventFromSource(e, source.getClass().getCanonicalName(), source.getId());
                 
                 try {
                     Thread.sleep(SLIEEP_TIME);
@@ -150,7 +171,7 @@ public class TestSource extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(StreamProcessingRuntime runtime) throws ProcessingException {
+        public void startProcessingEvents(ProcessingRuntime runtime) throws ProcessingException {
             
         }
     }

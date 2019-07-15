@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.lisapark.koctopus.ProgrammerException;
+import org.lisapark.koctopus.core.Reproducible;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
 import org.lisapark.koctopus.core.memory.Memory;
@@ -40,7 +41,7 @@ import org.lisapark.koctopus.util.Pair;
  */
 public class PearsonsCorrelationProcessor extends Processor<Pair<Double, Double>> {
     
-    private final static java.util.logging.Logger logger 
+    private final static java.util.logging.Logger LOGGER 
             = java.util.logging.Logger.getLogger(PearsonsCorrelationProcessor.class.getName());
     
 //    private static final String DEFAULT_NAME = "PearsonsCorrelation";
@@ -97,6 +98,11 @@ public class PearsonsCorrelationProcessor extends Processor<Pair<Double, Double>
     @Override
     public PearsonsCorrelationProcessor newInstance() {
         return new PearsonsCorrelationProcessor(UUID.randomUUID(), this);
+    }
+
+    @Override
+    public PearsonsCorrelationProcessor newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -164,16 +170,11 @@ public class PearsonsCorrelationProcessor extends Processor<Pair<Double, Double>
         return correlation;
     }
 
-    @Override
-    public CompiledProcessor<Pair<Double, Double>> compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     static class CompiledCorrelation extends CompiledProcessor<Pair<Double, Double>> {
         private final String firstAttributeName;
         private final String secondAttributeName;
         
-        private PearsonsCorrelationProcessor correlation;
+        private final PearsonsCorrelationProcessor correlation;
 
         protected CompiledCorrelation(PearsonsCorrelationProcessor correlation) {
             super(correlation);
@@ -197,7 +198,7 @@ public class PearsonsCorrelationProcessor extends Processor<Pair<Double, Double>
                 
                 Memory<Pair<Double, Double>> processorMemory = ctx.getProcessorMemory();
                 
-                Pair<Double, Double> newPair = new Pair<Double, Double>(firstOperand, secondOperand);
+                Pair<Double, Double> newPair = new Pair<>(firstOperand, secondOperand);
                 processorMemory.add(newPair);
                
                 int arraySize = correlation.getWindowLength(); 

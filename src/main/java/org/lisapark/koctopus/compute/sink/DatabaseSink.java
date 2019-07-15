@@ -37,6 +37,8 @@ import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.Source;
 import org.lisapark.koctopus.compute.util.Connections;
 import org.lisapark.koctopus.compute.util.DaoUtils;
+import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.openide.util.Exceptions;
 
 /**
@@ -45,7 +47,7 @@ import org.openide.util.Exceptions;
  */
 public class DatabaseSink extends AbstractNode implements ExternalSink {
 
-    private final static java.util.logging.Logger logger
+    private final static java.util.logging.Logger LOGGER
             = java.util.logging.Logger.getLogger(DatabaseSink.class.getName());
 
     private static final String DEFAULT_NAME = "Database";
@@ -72,7 +74,7 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
 
     private static final String DEFAULT_INPUT = "Input data";
 
-    private Input<Event> input;
+    private final Input<Event> input;
     private CompiledDatabaseSink compiledExternalSink;
 
     private DatabaseSink(UUID id, String name, String description) {
@@ -147,6 +149,11 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
     }
 
     @Override
+    public DatabaseSink newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public DatabaseSink copyOf() {
         return new DatabaseSink(this);
     }
@@ -197,11 +204,6 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
         return compiledExternalSink;
     }
 
-    @Override
-    public CompiledExternalSink compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     static class CompiledDatabaseSink extends CompiledExternalSink {
 
         private final DatabaseSink databaseSink;
@@ -227,13 +229,11 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
 
                     String query = DaoUtils.insertQueryString(data, databaseSink.getTable(), null);
 
-                    logger.log(Level.INFO, "Query: ====> {0}", query);
+                    LOGGER.log(Level.INFO, "Query: ====> {0}", query);
 
                     int key = DaoUtils.insert(query, null, connection);
 
-                } catch (SQLException ex) {
-                    Exceptions.printStackTrace(ex);
-                } catch (ProcessingException ex) {
+                } catch (SQLException | ProcessingException ex) {
                     Exceptions.printStackTrace(ex);
                 }
             } else {
@@ -270,9 +270,7 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
 
             String[] attList = attributeList.split(",");
 
-            for (int i = 0; i < attList.length; i++) {
-                String attr = attList[i];
-
+            for (String attr : attList) {
                 if (attr.equalsIgnoreCase(databaseSink.getUuidFieldName())) {
                     retMap.put(attr, UUID.randomUUID());
                 } else {
@@ -282,6 +280,12 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
 
             return retMap;
         }
+
+        @Override
+        public void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId) {
+            throw new UnsupportedOperationException("Not supported yet."); 
+            //To change body of generated methods, choose Tools | Templates.
+        }
     }
 
     /**
@@ -290,6 +294,6 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
     @Override
     public void complete() {
         Connections.closeQuietly(compiledExternalSink.connection);
-        logger.log(Level.INFO, "Connection: ====> {0}", "Closed!!!");
+        LOGGER.log(Level.INFO, "Connection: ====> {0}", "Closed!!!");
     }
 }

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.lisapark.koctopus.ProgrammerException;
+import org.lisapark.koctopus.core.Reproducible;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
 import org.lisapark.koctopus.core.memory.Memory;
@@ -68,6 +69,11 @@ public class Pipe extends Processor<Integer> {
     @Override
     public Pipe newInstance() {
         return new Pipe(UUID.randomUUID(), this);
+    }
+
+    @Override
+    public Pipe newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -128,11 +134,6 @@ public class Pipe extends Processor<Integer> {
         }
 
         return pipe;
-    }
-
-    @Override
-    public CompiledProcessor<Integer> compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     /**

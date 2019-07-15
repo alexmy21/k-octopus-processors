@@ -41,30 +41,30 @@ import org.lisapark.koctopus.util.Pair;
  * @author Alex Mylnikov (alexmy@lisa-park.com)
  */
 public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
-    
-    private final static java.util.logging.Logger logger 
+
+    private final static java.util.logging.Logger LOGGER
             = java.util.logging.Logger.getLogger(LinearRegressionProcessor.class.getName());
-    
+
     private static final String DEFAULT_NAME = "LinearRegression";
     private static final String DEFAULT_DESCRIPTION = "Calculate parameters for Linear Regressional Model for two series ";
     private static final String DEFAULT_WINDOW_LENGTH_DESCRIPTION = "Number of data points to consider when performing the calculations.";
-    private static final String DEFAULT_OUTPUT_DESCRIPTION = "Result is two parameters: " + 
-            "intercept and slope";
+    private static final String DEFAULT_OUTPUT_DESCRIPTION = "Result is two parameters: "
+            + "intercept and slope";
 
     /**
      * LinearRegressionProcessor takes two inputs
      */
     private static final int FIRST_INPUT_ID = 1;
     private static final int SECOND_INPUT_ID = 2;
-    private static final int WINDOW_LENGTH_PARAMETER_ID     = 3;
-    
-    private static final int A_COEFFICIENT_NAME_PARAM_ID    = 4; 
-    private static final int B_COEFFICIENT_NAME_PARAM_ID    = 5;
-    
-    private static final String A_COEFFICIENT_NAME          = "Intercept name: ";
-    private static final String B_COEFFICIENT_NAME          = "Slope name: ";
-    
-    private static final int OUTPUT_ID = 1;   
+    private static final int WINDOW_LENGTH_PARAMETER_ID = 3;
+
+    private static final int A_COEFFICIENT_NAME_PARAM_ID = 4;
+    private static final int B_COEFFICIENT_NAME_PARAM_ID = 5;
+
+    private static final String A_COEFFICIENT_NAME = "Intercept name: ";
+    private static final String B_COEFFICIENT_NAME = "Slope name: ";
+
+    private static final int OUTPUT_ID = 1;
 
     protected LinearRegressionProcessor(UUID id, String name, String description) {
         super(id, name, description);
@@ -78,7 +78,6 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
         super(correlationToCopy);
     }
 
-    
     public int getWindowLength() {
         return getParameter(WINDOW_LENGTH_PARAMETER_ID).getValueAsInteger();
     }
@@ -87,8 +86,7 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
     public void setWindowLength(int windowLength) throws ValidationException {
         getParameter(WINDOW_LENGTH_PARAMETER_ID).setValue(windowLength);
     }
-    
-    
+
     /**
      * @return the coefficientA
      */
@@ -98,6 +96,7 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
 
     /**
      * @param coefficientA the coefficientA to set
+     * @throws org.lisapark.koctopus.core.ValidationException
      */
     @SuppressWarnings("unchecked")
     public void setCoefficientAname(String coefficientA) throws ValidationException {
@@ -113,12 +112,13 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
 
     /**
      * @param coefficientB the coefficientB to set
+     * @throws org.lisapark.koctopus.core.ValidationException
      */
     @SuppressWarnings("unchecked")
     public void setCoefficientBname(String coefficientB) throws ValidationException {
         getParameter(B_COEFFICIENT_NAME_PARAM_ID).setValue(coefficientB);
     }
-    
+
     public ProcessorInput getFirstInput() {
         // there are two inputs for linearRegressionProcessor
         return getInputs().get(0);
@@ -135,14 +135,19 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
     }
 
     @Override
+    public LinearRegressionProcessor newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public LinearRegressionProcessor copyOf() {
         return new LinearRegressionProcessor(this);
     }
-    
+
     /**
-     * {@link LinearRegressionProcessor}s need memory to store the prior events that will be used 
-     * to calculate parameters for Linear Regression. We
-     * used a {@link MemoryProvider#createCircularBuffer(int)} to store this data.
+     * {@link LinearRegressionProcessor}s need memory to store the prior events
+     * that will be used to calculate parameters for Linear Regression. We used
+     * a {@link MemoryProvider#createCircularBuffer(int)} to store this data.
      *
      * @param memoryProvider used to create LinearRegressionProcessor's memory
      * @return circular buffer
@@ -151,7 +156,7 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
     public Memory<Pair<Double, Double>> createMemoryForProcessor(MemoryProvider memoryProvider) {
         return memoryProvider.createCircularBuffer(getWindowLength());
     }
-    
+
     @Override
     public CompiledProcessor<Pair<Double, Double>> compile() throws ValidationException {
         validate();
@@ -163,35 +168,37 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
     }
 
     /**
-     * Returns a new {@link LinearRegressionProcessor} processor configured with all the appropriate
-     * {@link org.lisapark.koctopus.core.parameter.Parameter}s, {@link org.lisapark.koctopus.core.Input}s and {@link org.lisapark.koctopus.core.Output}.
+     * Returns a new {@link LinearRegressionProcessor} processor configured with
+     * all the appropriate
+     * {@link org.lisapark.koctopus.core.parameter.Parameter}s,
+     * {@link org.lisapark.koctopus.core.Input}s and
+     * {@link org.lisapark.koctopus.core.Output}.
      *
      * @return new {@link LinearRegressionProcessor}
      */
     public static LinearRegressionProcessor newTemplate() {
         UUID processorId = UUID.randomUUID();
         LinearRegressionProcessor regression = new LinearRegressionProcessor(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
-        
+
         regression.addParameter(
                 Parameter.integerParameterWithIdAndName(WINDOW_LENGTH_PARAMETER_ID, "Time-window").
                         description(DEFAULT_WINDOW_LENGTH_DESCRIPTION).
                         defaultValue(10).required(true).
                         constraint(Constraints.integerConstraintWithMinimumAndMessage(1, "Sample size, should be greater than 0."))
         );
-        
+
         regression.addParameter(
                 Parameter.stringParameterWithIdAndName(A_COEFFICIENT_NAME_PARAM_ID, A_COEFFICIENT_NAME).
                         description("Name of the intercept.").
                         defaultValue("A").required(true)
         );
-        
+
         regression.addParameter(
                 Parameter.stringParameterWithIdAndName(B_COEFFICIENT_NAME_PARAM_ID, B_COEFFICIENT_NAME).
                         description("Name of the slope - coefficient in Y = A + B*X.").
                         defaultValue("B").required(true)
         );
 
-        // two double inputs
         ProcessorInput<Double> firstInput = ProcessorInput.doubleInputWithId(FIRST_INPUT_ID).name("Sequence 1")
                 .description("Sequence 1 data array.").build();
         regression.addInput(firstInput);
@@ -200,9 +207,6 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
                 .description("Sequence 2 data array.").build();
         regression.addInput(secondInput);
 
-//        correlation.addJoin(firstInput, secondInput);
-
-        // double output
         try {
             regression.setOutput(ProcessorOutput.doubleOutputWithId(OUTPUT_ID).name("Regression").attributeName("LinearRegression")
                     .description(DEFAULT_OUTPUT_DESCRIPTION));
@@ -214,19 +218,14 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
         return regression;
     }
 
-    @Override
-    public CompiledProcessor<Pair<Double, Double>> compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-
     static class CompiledRegression extends CompiledProcessor<Pair<Double, Double>> {
+
         private final String firstAttributeName;
         private final String secondAttributeName;
-        
-        private LinearRegressionProcessor regression;
-        private static final String INTRERSEPT  = "intersept";
-        private static final String SLOPE       = "slope";
+
+        private final LinearRegressionProcessor regression;
+        private static final String INTRERSEPT = "intersept";
+        private static final String SLOPE = "slope";
 
         protected CompiledRegression(LinearRegressionProcessor regression) {
             super(regression);
@@ -243,47 +242,46 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
 
             Double firstOperand = firstEvent.getAttributeAsDouble(firstAttributeName);
             Double secondOperand = secondEvent.getAttributeAsDouble(secondAttributeName);
-            
+
             Map<String, Object> retMap = Maps.newHashMap();
-            
+
             if (firstOperand != null && secondOperand != null) {
-                
+
                 Memory<Pair<Double, Double>> processorMemory = ctx.getProcessorMemory();
-                
-                Pair<Double, Double> newPair = new Pair<Double, Double>(firstOperand, secondOperand);
+
+                Pair<Double, Double> newPair = new Pair<>(firstOperand, secondOperand);
                 processorMemory.add(newPair);
-               
-                int arraySize = regression.getWindowLength(); 
+
+                int arraySize = regression.getWindowLength();
                 double[] first = new double[arraySize];
                 double[] second = new double[arraySize];
 
                 final Collection<Pair<Double, Double>> memoryItems = processorMemory.values();
-                
+
                 SimpleRegression simpleRegression = new SimpleRegression();
-               
+
                 if (memoryItems.size() >= arraySize) {
 
                     int i = 0;
-                    for (Pair<Double, Double> memoryItem : memoryItems) {
+                    memoryItems.forEach((memoryItem) -> {
                         simpleRegression.addData(memoryItem.getFirst(), memoryItem.getSecond());
-                    }
-                    
+                    });
+
                     simpleRegression.regress();
-                    
+
                     // y = a + bx; a - intersept; b - slope;
                     retMap.put(regression.getCoefficientAname(), simpleRegression.getIntercept());
-                    retMap.put(regression.getCoefficientBname(), simpleRegression.getSlope());                    
+                    retMap.put(regression.getCoefficientBname(), simpleRegression.getSlope());
                 }
-            }            
-            
-//            return getGssListEntryFromEvent(retMap);
+            }
+
             return retMap;
         }
-        
+
         private String getGssListEntryFromEvent(Map<String, Object> map) {
-            StringBuilder builder = new StringBuilder();  
-            
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
+            StringBuilder builder = new StringBuilder();
+
+            map.entrySet().forEach((entry) -> {
                 String entryValueString;
                 String entryKeyString;
 
@@ -293,7 +291,7 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
                     entryKeyString = "";
                 } else {
                     entryValueString = entry.getValue().toString();
-                    entryKeyString = entry.getKey().toString();
+                    entryKeyString = entry.getKey();
                 }
 
                 if (builder.length() > 0) {
@@ -304,10 +302,10 @@ public class LinearRegressionProcessor extends Processor<Pair<Double, Double>> {
                 } else {
                     builder.append(entryKeyString).append("=").append(entryValueString);
                 }
-            }
-            
-logger.log(     Level.INFO, "builder.toString(): ==> {0}", builder.toString());
-            
+            });
+
+            LOGGER.log(Level.INFO, "builder.toString(): ==> {0}", builder.toString());
+
             return builder.toString();
         }
     }

@@ -22,9 +22,9 @@ import org.lisapark.koctopus.ProgrammerException;
 import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.Persistable;
+import org.lisapark.koctopus.core.Reproducible;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
-import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
 import org.lisapark.koctopus.core.processor.Processor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
@@ -33,7 +33,7 @@ import org.lisapark.koctopus.core.runtime.ProcessorContext;
 
 /**
  * This {@link Processor} is used for transferring Double value from one processor to another.
- * <p/>
+ * 
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  * @author Alex Mylnikov (alexmy@lisa-park.com) mylnikov(alexmy@lisa-park.com)
@@ -76,15 +76,21 @@ public class PipeString extends Processor<Double> {
     }
 
     @Override
+    public PipeString newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public PipeString copyOf() {
         return new PipeString(this);
     }
 
     /**
-     * Validates and compile this Pipe. Doing so takes a "snapshot" of the {@link #getInputs()} and {@link #output}
+     * Validates and compile this Pipe.Doing so takes a "snapshot" of the {@link #getInputs()} and {@link #output}
      * and returns a {@link CompiledProcessor}.
      *
      * @return CompiledProcessor
+     * @throws org.lisapark.koctopus.core.ValidationException
      */
     @Override
     public CompiledProcessor<Double> compile() throws ValidationException {
@@ -120,11 +126,6 @@ public class PipeString extends Processor<Double> {
         }
 
         return connector;
-    }
-
-    @Override
-    public CompiledProcessor<Double> compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     /**

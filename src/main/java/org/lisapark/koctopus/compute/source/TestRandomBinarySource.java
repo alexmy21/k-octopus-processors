@@ -30,6 +30,8 @@ import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.lisapark.koctopus.core.ProcessingException;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.openide.util.Exceptions;
@@ -79,6 +81,11 @@ public class TestRandomBinarySource extends ExternalSource {
         return new TestRandomBinarySource(sourceId, this);
     }
 
+    @Override
+    public TestRandomBinarySource newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     public static TestRandomBinarySource newTemplate() {
         UUID sourceId = UUID.randomUUID();
 
@@ -104,11 +111,6 @@ public class TestRandomBinarySource extends ExternalSource {
     @Override
     public CompiledExternalSource compile() throws ValidationException {
         return new CompiledTestSource(copyOf());
-    }
-
-    @Override
-    public CompiledExternalSource compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     static class CompiledTestSource implements CompiledExternalSource {
@@ -154,9 +156,9 @@ public class TestRandomBinarySource extends ExternalSource {
         private Event createEvent(List<Attribute> attributes, int random) {
             Map<String, Object> attributeData = Maps.newHashMap();
 
-            for (Attribute attribute : attributes) {
+            attributes.forEach((attribute) -> {
                 attributeData.put(attribute.getName(), attribute.createSampleData(random));
-            }
+            });
 
             return new Event(attributeData);
         }
@@ -164,6 +166,11 @@ public class TestRandomBinarySource extends ExternalSource {
         @Override
         public void stopProcessingEvents() {
             running = false;
+        }
+
+        @Override
+        public void startProcessingEvents(StreamProcessingRuntime runtime) throws ProcessingException {
+            
         }
     }
 }

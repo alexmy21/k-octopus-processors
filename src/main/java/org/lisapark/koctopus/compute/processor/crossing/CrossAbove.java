@@ -20,11 +20,9 @@ package org.lisapark.koctopus.compute.processor.crossing;
  *
  * @author Alex Mylnikov (alexmy@lisa-park.com)
  */
-import com.db4o.internal.logging.Logger;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
 import org.lisapark.koctopus.ProgrammerException;
 import org.lisapark.koctopus.core.Persistable;
 import org.lisapark.koctopus.core.ValidationException;
@@ -33,6 +31,7 @@ import org.lisapark.koctopus.core.runtime.ProcessorContext;
 
 import java.util.Map;
 import java.util.UUID;
+import org.lisapark.koctopus.core.Reproducible;
 import org.lisapark.koctopus.core.memory.Memory;
 import org.lisapark.koctopus.core.memory.MemoryProvider;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
@@ -43,14 +42,14 @@ import org.lisapark.koctopus.util.Pair;
 
 /**
  * This {@link Processor} is used to determine if two SMAs are crossed.
- * <p/>
+ * 
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
 public class CrossAbove extends Processor<Pair> {
     
-    private final static java.util.logging.Logger logger 
+    private final static java.util.logging.Logger LOGGER 
             = java.util.logging.Logger.getLogger(CrossAbove.class.getName());
     
 //    private static final String DEFAULT_NAME = "CrossAbove";
@@ -153,7 +152,7 @@ public class CrossAbove extends Processor<Pair> {
     }
 
     @Override
-    public CompiledProcessor<Pair> compile(String json) throws ValidationException {
+    public CrossAbove newInstance(String json) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -32,6 +32,7 @@ import org.lisapark.koctopus.core.runtime.ProcessorContext;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
+import org.lisapark.koctopus.core.Reproducible;
 import org.lisapark.koctopus.core.memory.Memory;
 import org.lisapark.koctopus.core.memory.MemoryProvider;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
@@ -42,17 +43,17 @@ import org.lisapark.koctopus.util.Pair;
 
 /**
  * This {@link Processor} is used to determine if two SMAs are crossed.
- * <p/>
- * 
+ *
+ *
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
 public class CrossUnder extends Processor<Pair> {
-    
-    private final static java.util.logging.Logger logger 
+
+    private final static java.util.logging.Logger LOGGER
             = java.util.logging.Logger.getLogger(CrossUnder.class.getName());
-    
+
     private static final String DEFAULT_NAME = "Cross Under";
     private static final String DEFAULT_DESCRIPTION = "Checks if crossing from under happened";
 
@@ -92,14 +93,19 @@ public class CrossUnder extends Processor<Pair> {
     }
 
     @Override
+    public CrossUnder newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public CrossUnder copyOf() {
         return new CrossUnder(this);
     }
-    
+
     /**
-     * {@link CrossUnder}s need memory to store the prior events that will be used 
-     * to determine if two SMAs are crossed. We
-     * used a {@link MemoryProvider#createCircularBuffer(int)} to store this data.
+     * {@link CrossUnder}s need memory to store the prior events that will be
+     * used to determine if two SMAs are crossed. We used a
+     * {@link MemoryProvider#createCircularBuffer(int)} to store this data.
      *
      * @param memoryProvider used to create CrosAbove's memory
      * @return circular buffer
@@ -108,7 +114,7 @@ public class CrossUnder extends Processor<Pair> {
     public Memory<Pair> createMemoryForProcessor(MemoryProvider memoryProvider) {
         return memoryProvider.createCircularBuffer(BUFFER_SIZE);
     }
-    
+
     @Override
     public CompiledProcessor<Pair> compile() throws ValidationException {
         validate();
@@ -120,8 +126,10 @@ public class CrossUnder extends Processor<Pair> {
     }
 
     /**
-     * Returns a new {@link CrossUnder} processor configured with all the appropriate
-     * {@link org.lisapark.koctopus.core.parameter.Parameter}s, {@link org.lisapark.koctopus.core.Input}s and {@link org.lisapark.koctopus.core.Output}.
+     * Returns a new {@link CrossUnder} processor configured with all the
+     * appropriate {@link org.lisapark.koctopus.core.parameter.Parameter}s,
+     * {@link org.lisapark.koctopus.core.Input}s and
+     * {@link org.lisapark.koctopus.core.Output}.
      *
      * @return new {@link CrossUnder}
      */
@@ -149,12 +157,8 @@ public class CrossUnder extends Processor<Pair> {
         return crossUnder;
     }
 
-    @Override
-    public CompiledProcessor<Pair> compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     static class CompiledCrossUnder extends CompiledProcessor<Pair> {
+
         private final String firstAttributeName;
         private final String secondAttributeName;
 
@@ -172,35 +176,34 @@ public class CrossUnder extends Processor<Pair> {
 
             Double firstOperand = firstEvent.getAttributeAsDouble(firstAttributeName);
             Double secondOperand = secondEvent.getAttributeAsDouble(secondAttributeName);
-            
+
             Double retValue = 0D;
-            
+
             if (firstOperand != null && secondOperand != null) {
-                
+
                 Memory<Pair> processorMemory = ctx.getProcessorMemory();
-                
-logger.info("Memory<Pair> processorMemory = ctx.getProcessorMemory();");
-                
-                Pair<Double, Double> newPair = new Pair<Double, Double>(firstOperand, secondOperand);
+
+                LOGGER.info("Memory<Pair> processorMemory = ctx.getProcessorMemory();");
+
+                Pair<Double, Double> newPair = new Pair<>(firstOperand, secondOperand);
                 processorMemory.add(newPair);
-                
-                
-logger.info("processorMemory.add(newPair);");
-                
+
+                LOGGER.info("processorMemory.add(newPair);");
+
                 List<Pair> list = Lists.newArrayList();
 
                 final Collection<Pair> memoryItems = processorMemory.values();
-                
-logger.info("final Collection<Pair> memoryItems = processorMemory.values();");
 
-                for (Pair memoryItem : memoryItems) {
+                LOGGER.info("final Collection<Pair> memoryItems = processorMemory.values();");
+
+                memoryItems.forEach((memoryItem) -> {
                     list.add(memoryItem);
-                }
+                });
 
-logger.log(     Level.INFO, "list.add(memoryItem);{0}", list);
-                
+                LOGGER.log(Level.INFO, "list.add(memoryItem);{0}", list);
+
                 if (list.size() >= BUFFER_SIZE) {
-                  
+
                     Pair<Double, Double> firstPair = list.get(0);
                     Pair<Double, Double> secondPair = list.get(2);
 
@@ -210,8 +213,8 @@ logger.log(     Level.INFO, "list.add(memoryItem);{0}", list);
                     }
                 }
 //                retValue = newPair.getFirst();
-            }            
-            
+            }
+
             return retValue > 0 ? Boolean.TRUE : Boolean.FALSE;
         }
     }

@@ -40,6 +40,8 @@ import java.util.zip.ZipFile;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.lisapark.koctopus.compute.util.Booleans;
+import org.lisapark.koctopus.core.ProcessingException;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.openide.util.Exceptions;
 
 /**
@@ -152,6 +154,11 @@ public class GdeltZipSource extends ExternalSource {
         return new GdeltZipSource(sourceId, this);
     }
 
+    @Override
+    public GdeltZipSource newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     public static GdeltZipSource newTemplate() {
         UUID sourceId = UUID.randomUUID();
 
@@ -184,11 +191,6 @@ public class GdeltZipSource extends ExternalSource {
     @Override
     public CompiledExternalSource compile() throws ValidationException {
         return new CompiledTestSource(copyOf());
-    }
-
-    @Override
-    public CompiledExternalSource compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     static class CompiledTestSource implements CompiledExternalSource {
@@ -252,7 +254,7 @@ public class GdeltZipSource extends ExternalSource {
                             }
                         } catch (IllegalArgumentException iae) {
                             System.err.println(iae.getMessage());
-                        } catch (Exception e) {                            
+                        } catch (IOException e) {                            
                             System.err.println("Unhandled exception:");
                         } finally {
                             if (input != null) {
@@ -318,7 +320,7 @@ public class GdeltZipSource extends ExternalSource {
                         } else {
                             throw new IllegalArgumentException(String.format("Unknown attribute type %s", type));
                         }
-                    } catch (Exception e) {
+                    } catch (IllegalArgumentException e) {
                         System.out.println(e.getMessage());
                         attributeValues.put(attributeName, null);
                     }
@@ -331,6 +333,11 @@ public class GdeltZipSource extends ExternalSource {
             }
 
             return new Event(attributeValues);
+        }
+
+        @Override
+        public void startProcessingEvents(StreamProcessingRuntime runtime) throws ProcessingException {
+            
         }
     }
 }

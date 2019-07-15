@@ -31,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.lisapark.koctopus.ModelRunner;
 import org.lisapark.koctopus.ProgrammerException;
+import org.lisapark.koctopus.core.Reproducible;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
 import org.lisapark.koctopus.core.parameter.Parameter;
@@ -85,6 +86,11 @@ public class RTCAcontroller extends Processor<Void> {
     @Override
     public RTCAcontroller newInstance() {
         return new RTCAcontroller(UUID.randomUUID(), this);
+    }
+
+    @Override
+    public RTCAcontroller newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -167,11 +173,6 @@ public class RTCAcontroller extends Processor<Void> {
         return rtc;
     }
 
-    @Override
-    public CompiledProcessor<Void> compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     /**
      * This {@link CompiledProcessor} is the actual logic that implements the
      * Simple Moving Average.
@@ -247,11 +248,7 @@ public class RTCAcontroller extends Processor<Void> {
 
                 done = true;
 
-            } catch (IllegalStateException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (JSONException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (InterruptedException ex) {
+            } catch (IllegalStateException | JSONException | InterruptedException ex) {
                 Exceptions.printStackTrace(ex);
             } finally {
                 if (httpclient != null) {

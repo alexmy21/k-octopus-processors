@@ -102,6 +102,11 @@ public class Sma extends Processor<Double> {
     }
 
     @Override
+    public Sma newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public Sma copyOf() {
         return new Sma(this);
     }
@@ -167,11 +172,6 @@ public class Sma extends Processor<Double> {
         }
 
         return sma;
-    }
-
-    @Override
-    public CompiledProcessor<Double> compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     /**

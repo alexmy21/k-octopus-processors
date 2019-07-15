@@ -43,11 +43,12 @@ import java.util.UUID;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import static com.google.common.base.Preconditions.checkState;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 
 /**
  * This class is an {@link ExternalSource} that is used to access relational databases. It can be configured with
  * a JDBC Url for the database, username, password, Driver fully qualified class name, and a query to execute.
- * <p/>
+ * 
  * Currently, the source uses the {@link org.lisapark.octopus.core.Output#getEventType()} to get the names of the
  * columns and types of the columns, but it will probably be changed in the future to support a mapper that takes
  * a {@link ResultSet} and produces an {@link Event}.
@@ -133,6 +134,11 @@ public class SqlQuerySource extends ExternalSource {
     }
 
     @Override
+    public SqlQuerySource newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public SqlQuerySource copyOf() {
         return new SqlQuerySource(this);
     }
@@ -158,11 +164,6 @@ public class SqlQuerySource extends ExternalSource {
         validate();
 
         return new CompiledSqlQuerySource(this.copyOf());
-    }
-
-    @Override
-    public CompiledExternalSource compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     private static class CompiledSqlQuerySource implements CompiledExternalSource {
@@ -280,6 +281,11 @@ public class SqlQuerySource extends ExternalSource {
             }
 
             return new Event(attributeValues);
+        }
+
+        @Override
+        public void startProcessingEvents(StreamProcessingRuntime runtime) throws ProcessingException {
+            
         }
     }
 }

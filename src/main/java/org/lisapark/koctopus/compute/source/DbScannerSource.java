@@ -43,6 +43,7 @@ import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import static com.google.common.base.Preconditions.checkState;
 import java.util.logging.Level;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.openide.util.Exceptions;
 
 /**
@@ -52,7 +53,7 @@ import org.openide.util.Exceptions;
 public class DbScannerSource  extends ExternalSource {
     
      
-    private final static java.util.logging.Logger logger 
+    private final static java.util.logging.Logger LOGGER 
             = java.util.logging.Logger.getLogger(DbScannerSource.class.getName());
     
     private static final String DEFAULT_NAME = "Sql Query";
@@ -143,6 +144,11 @@ public class DbScannerSource  extends ExternalSource {
     }
 
     @Override
+    public DbScannerSource newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public DbScannerSource copyOf() {
         return new DbScannerSource(this);
     }
@@ -169,11 +175,6 @@ public class DbScannerSource  extends ExternalSource {
         validate();
 
         return new CompiledDbScannerSource(this.copyOf());
-    }
-
-    @Override
-    public CompiledExternalSource compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     private static class CompiledDbScannerSource implements CompiledExternalSource {
@@ -312,9 +313,14 @@ public class DbScannerSource  extends ExternalSource {
         protected void finalize() throws Throwable{
             Connections.closeQuietly(connection);
             
-            logger.log(Level.INFO, "Connection: ====> {0}", "Closed!!!");
+            LOGGER.log(Level.INFO, "Connection: ====> {0}", "Closed!!!");
             
             super.finalize();            
+        }
+
+        @Override
+        public void startProcessingEvents(StreamProcessingRuntime runtime) throws ProcessingException {
+            
         }
     }
 }

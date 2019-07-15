@@ -20,11 +20,9 @@ package org.lisapark.koctopus.compute.processor.crossing;
  *
  * @author Alex Mylnikov (alexmy@lisa-park.com)
  */
-import com.db4o.internal.logging.Logger;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
 import org.lisapark.koctopus.ProgrammerException;
 import org.lisapark.koctopus.core.Persistable;
 import org.lisapark.koctopus.core.ValidationException;
@@ -33,6 +31,7 @@ import org.lisapark.koctopus.core.runtime.ProcessorContext;
 
 import java.util.Map;
 import java.util.UUID;
+import org.lisapark.koctopus.core.Reproducible;
 import org.lisapark.koctopus.core.memory.Memory;
 import org.lisapark.koctopus.core.memory.MemoryProvider;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
@@ -43,14 +42,14 @@ import org.lisapark.koctopus.util.Pair;
 
 /**
  * This {@link Processor} is used to determine if two SMAs are crossed.
- * <p/>
+ * 
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
 public class Crossing extends Processor<Pair> {
     
-    private final static java.util.logging.Logger logger 
+    private final static java.util.logging.Logger LOGGER 
             = java.util.logging.Logger.getLogger(Crossing.class.getName());
     
     private static final String DEFAULT_NAME = "Crossing";
@@ -91,6 +90,11 @@ public class Crossing extends Processor<Pair> {
     @Override
     public Crossing newInstance() {
         return new Crossing(UUID.randomUUID(), this);
+    }
+
+    @Override
+    public Crossing newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -154,11 +158,6 @@ public class Crossing extends Processor<Pair> {
         return cross;
     }
 
-    @Override
-    public CompiledProcessor<Pair> compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     static class CompiledCrossing extends CompiledProcessor<Pair> {
         private final String firstAttributeName;
         private final String secondAttributeName;
@@ -184,15 +183,15 @@ public class Crossing extends Processor<Pair> {
                 
                 Memory<Pair> processorMemory = ctx.getProcessorMemory();
                 
-                Pair<Double, Double> newPair = new Pair<Double, Double>(firstOperand, secondOperand);
+                Pair<Double, Double> newPair = new Pair<>(firstOperand, secondOperand);
                 processorMemory.add(newPair);
                 
                 List<Pair> list = Lists.newArrayList();
 
                 final Collection<Pair> memoryItems = processorMemory.values();
-                for (Pair memoryItem : memoryItems) {
+                memoryItems.forEach((memoryItem) -> {
                     list.add(memoryItem);
-                }
+                });
 
 //logger.log(     Level.INFO, "list.add(memoryItem);{0}", list);
                 

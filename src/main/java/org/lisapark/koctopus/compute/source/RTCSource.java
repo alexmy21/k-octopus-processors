@@ -17,18 +17,17 @@
 package org.lisapark.koctopus.compute.source;
 
 import com.google.common.collect.Maps;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.Persistable;
+import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
-import org.lisapark.koctopus.core.event.EventType;
 import org.lisapark.koctopus.core.parameter.Parameter;
-import org.lisapark.koctopus.core.parameter.Parameter.Builder;
 import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.openide.util.Exceptions;
@@ -76,6 +75,11 @@ public class RTCSource extends ExternalSource {
         return new RTCSource(sourceId, this);
     }
 
+    @Override
+    public RTCSource newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     public static RTCSource newTemplate() {
         UUID sourceId = UUID.randomUUID();
 
@@ -101,18 +105,13 @@ public class RTCSource extends ExternalSource {
         return new CompiledRedisSource(copyOf());
     }
 
-    @Override
-    public CompiledExternalSource compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     class CompiledRedisSource implements CompiledExternalSource {
 
         protected final Logger logger = Logger.getLogger(CompiledRedisSource.class.getName());
         protected final RTCSource source;
         protected volatile boolean running;
         protected Thread thread;
-        private long SLIEEP_TIME = 100L;
+        private final long SLIEEP_TIME = 100L;
 
         public CompiledRedisSource(RTCSource source) {
             this.source = source;
@@ -146,6 +145,11 @@ public class RTCSource extends ExternalSource {
         @Override
         public void stopProcessingEvents() {
             this.running = false;
+        }
+
+        @Override
+        public void startProcessingEvents(StreamProcessingRuntime runtime) throws ProcessingException {
+            
         }
     }
 }

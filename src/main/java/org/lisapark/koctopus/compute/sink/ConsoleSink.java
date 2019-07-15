@@ -31,7 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import org.lisapark.koctopus.core.event.Attribute;
 import org.lisapark.koctopus.core.parameter.Parameter;
+import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 
@@ -49,7 +53,7 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
     private static final String ATTRIBUTE_LIST_DESCRIPTION = 
             "List comma separated attribute names that you would like to show on Console. Empty - will show all attributes.";
     
-    private Input<Event> input;
+    private final Input<Event> input;
 
     private ConsoleSink(UUID id, String name, String description) {
         super(id, name, description);
@@ -105,6 +109,11 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
     }
 
     @Override
+    public ConsoleSink newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public ConsoleSink copyOf() {
         return new ConsoleSink(this);
     }
@@ -126,14 +135,9 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
         return new CompiledConsole(copyOf());
     }
 
-    @Override
-    public CompiledExternalSink compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     static class CompiledConsole extends CompiledExternalSink {
         
-        private ConsoleSink consoleSink; 
+        private final ConsoleSink consoleSink; 
         
         protected CompiledConsole(ConsoleSink processor) {
             super(processor);
@@ -144,14 +148,21 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
         public synchronized void processEvent(SinkContext ctx, Map<Integer, Event> eventsByInputId) {
             Event event = eventsByInputId.get(1);
             if (event != null) {
+                
+                UUID sourceId = consoleSink.getInput().getSource().getId();
+                String sourceClass = consoleSink.getInput().getSource().getClass().getCanonicalName();
+                
                 String attributeList = consoleSink.getAttributeList();
-                if(attributeList.isEmpty() || attributeList.split(",").length == 0){
+                if(attributeList == null || attributeList.isEmpty()){
                     // Print out everything
-                    ctx.getStandardOut().println(event);
+                    List<Attribute> attributes = consoleSink.getInput().getSource().getOutput().getAttributes();
+                    
+                    attributeList = attributes.stream().map(attr -> attr.getName()).collect(Collectors.joining(","));                    
+                    String outputString = formatOutput(event, attributeList);
+                    ctx.getStandardOut().println(outputString);
                 } else {
                     // Print out only selected attributes
-                    String outputString = formatOutput(event, attributeList);
-                    
+                    String outputString = formatOutput(event, attributeList);                    
                     // Print out only if there are some attributes are not null
                     if(outputString != null){
                         ctx.getStandardOut().println(outputString);
@@ -168,9 +179,7 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
             StringBuilder outputString = new StringBuilder();            
             String[] attList = attributeList.split(",");
             
-            for(int i = 0; i < attList.length; i++){
-                String attr = attList[i]; 
-                
+            for (String attr : attList) {
                 if(data.get(attr) != null){
                     
                     if (outputString.length() > 1) {
@@ -205,6 +214,13 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
             }
 
             return outputString;
+        }
+
+        @Override
+        public void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId) {
+            // TODO. remove when transition completed
+            throw new UnsupportedOperationException("Not supported yet."); 
+            //To change body of generated methods, choose Tools | Templates.
         }
     }
 }

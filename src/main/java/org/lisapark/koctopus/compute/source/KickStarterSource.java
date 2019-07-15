@@ -31,10 +31,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.Persistable;
+import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.openide.util.Exceptions;
@@ -103,6 +105,11 @@ public class KickStarterSource extends ExternalSource {
         return new KickStarterSource(sourceId, this);
     }
 
+    @Override
+    public KickStarterSource newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     public static KickStarterSource newTemplate() {
         UUID sourceId = UUID.randomUUID();
 
@@ -147,11 +154,6 @@ public class KickStarterSource extends ExternalSource {
         return new CompiledModelSource(copyOf());
     }
 
-    @Override
-    public CompiledExternalSource compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     class CompiledModelSource implements CompiledExternalSource {
 
         protected final Logger logger = Logger.getLogger(CompiledModelSource.class.getName());
@@ -191,11 +193,7 @@ public class KickStarterSource extends ExternalSource {
 
                 runtime.sendEventFromSource(new Event(attributeData), this.source);
 
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (IllegalStateException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (JSONException ex) {
+            } catch (IOException | IllegalStateException | JSONException ex) {
                 Exceptions.printStackTrace(ex);
             }
         }
@@ -203,6 +201,11 @@ public class KickStarterSource extends ExternalSource {
         @Override
         public void stopProcessingEvents() {
             this.running = false;
+        }
+
+        @Override
+        public void startProcessingEvents(StreamProcessingRuntime runtime) throws ProcessingException {
+            
         }
     }
 }

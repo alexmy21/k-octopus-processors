@@ -23,11 +23,13 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.Persistable;
+import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
 import org.lisapark.koctopus.core.event.EventType;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 
@@ -74,6 +76,11 @@ public class RedisQuittokenSource extends ExternalSource {
         return new RedisQuittokenSource(sourceId, this);
     }
 
+    @Override
+    public RedisQuittokenSource newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     public static RedisQuittokenSource newTemplate() {
         UUID sourceId = UUID.randomUUID();
 
@@ -96,11 +103,6 @@ public class RedisQuittokenSource extends ExternalSource {
     @Override
     public CompiledExternalSource compile() throws ValidationException {
         return new CompiledRedisSource(copyOf());
-    }
-
-    @Override
-    public CompiledExternalSource compile(String json) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     class CompiledRedisSource implements CompiledExternalSource {
@@ -129,6 +131,11 @@ public class RedisQuittokenSource extends ExternalSource {
         @Override
         public void stopProcessingEvents() {
             this.running = false;
+        }
+
+        @Override
+        public void startProcessingEvents(StreamProcessingRuntime runtime) throws ProcessingException {
+            
         }
     }
 }
