@@ -27,6 +27,7 @@ import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.lisapark.koctopus.ProgrammerException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.memory.Memory;
 import org.lisapark.koctopus.core.memory.MemoryProvider;
 import org.lisapark.koctopus.core.parameter.Constraints;
@@ -153,7 +154,7 @@ public class ForecastSRM extends Processor<Double> {
     }
 
     @Override
-    public ForecastSRM newInstance(String json) {
+    public ForecastSRM newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

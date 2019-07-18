@@ -41,6 +41,7 @@ import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.lisapark.koctopus.compute.util.Booleans;
 import org.lisapark.koctopus.core.ProcessingException;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.openide.util.Exceptions;
 
@@ -155,7 +156,7 @@ public class GdeltZipSource extends ExternalSource {
     }
 
     @Override
-    public GdeltZipSource newInstance(String json) {
+    public GdeltZipSource newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

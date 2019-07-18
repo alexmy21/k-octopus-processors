@@ -33,8 +33,8 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.lisapark.koctopus.core.event.Attribute;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.parameter.Parameter;
-import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
@@ -109,7 +109,7 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
     }
 
     @Override
-    public ConsoleSink newInstance(String json) {
+    public ConsoleSink newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

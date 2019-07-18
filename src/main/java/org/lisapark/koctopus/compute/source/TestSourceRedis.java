@@ -29,8 +29,10 @@ import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import org.lisapark.koctopus.core.ProcessingException;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
@@ -84,8 +86,35 @@ public class TestSourceRedis extends ExternalSource {
     }
 
     @Override
-    public TestSourceRedis newInstance(String json) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public TestSourceRedis newInstance(Gnode gnode) {
+        
+        TestSourceRedis testSource = new TestSourceRedis(UUID.fromString(gnode.getId()),copyOf());
+        
+        gnode.getProperties().entrySet().forEach((Entry<String, Object> e) -> {
+            Integer k = Integer.parseInt(e.getKey());
+            try {
+                testSource.getParameter(k).setValue(e.getValue());
+            } catch (ValidationException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        });
+       
+        // Source has no Inputs, so we are moving directly to Output
+        gnode.getPropertiesOut().entrySet().forEach((Entry<String, Object> e) -> {
+            try {
+                Class clazz = Class.forName((String) e.getValue());
+                Attribute attr =  Attribute.newAttribute(clazz, e.getKey());
+                if(testSource.getOutput().containsAttribute(attr)){
+                    // Do Nothing
+                } else {
+                    testSource.getOutput().addAttribute(attr);
+                }
+            } catch (ValidationException | ClassNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        });
+        
+        return testSource;
     }
 
     public static TestSourceRedis newTemplate() {

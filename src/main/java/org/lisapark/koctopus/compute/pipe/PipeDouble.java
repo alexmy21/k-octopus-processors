@@ -22,10 +22,9 @@ import org.lisapark.koctopus.ProgrammerException;
 import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.Persistable;
-import org.lisapark.koctopus.core.Reproducible;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
-import org.lisapark.koctopus.core.parameter.Parameter;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
 import org.lisapark.koctopus.core.processor.Processor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
@@ -77,7 +76,7 @@ public class PipeDouble extends Processor<Double> {
     }
 
     @Override
-    public PipeDouble newInstance(String json) {
+    public PipeDouble newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

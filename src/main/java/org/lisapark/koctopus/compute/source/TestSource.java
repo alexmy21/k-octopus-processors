@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.lisapark.koctopus.core.ProcessingException;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
@@ -75,7 +76,7 @@ public class TestSource extends ExternalSource {
     }
 
     @Override
-    public TestSource newInstance(String json) {
+    public TestSource newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

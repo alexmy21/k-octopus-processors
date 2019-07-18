@@ -27,6 +27,7 @@ import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
 import org.lisapark.koctopus.core.event.EventType;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
@@ -77,7 +78,7 @@ public class RedisQuittokenSource extends ExternalSource {
     }
 
     @Override
-    public RedisQuittokenSource newInstance(String json) {
+    public RedisQuittokenSource newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

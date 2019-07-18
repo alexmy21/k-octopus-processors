@@ -32,7 +32,7 @@ import org.lisapark.koctopus.core.runtime.ProcessorContext;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
-import org.lisapark.koctopus.core.Reproducible;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.memory.Memory;
 import org.lisapark.koctopus.core.memory.MemoryProvider;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
@@ -93,7 +93,7 @@ public class CrossUnder extends Processor<Pair> {
     }
 
     @Override
-    public CrossUnder newInstance(String json) {
+    public CrossUnder newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

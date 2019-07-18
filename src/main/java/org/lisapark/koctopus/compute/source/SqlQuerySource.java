@@ -43,6 +43,7 @@ import java.util.UUID;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import static com.google.common.base.Preconditions.checkState;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 
 /**
@@ -134,7 +135,7 @@ public class SqlQuerySource extends ExternalSource {
     }
 
     @Override
-    public SqlQuerySource newInstance(String json) {
+    public SqlQuerySource newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

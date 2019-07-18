@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.lisapark.koctopus.ProgrammerException;
-import org.lisapark.koctopus.core.Reproducible;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.memory.Memory;
 import org.lisapark.koctopus.core.memory.MemoryProvider;
 import org.lisapark.koctopus.core.parameter.Constraints;
@@ -101,7 +101,7 @@ public class PearsonsCorrelationProcessor extends Processor<Pair<Double, Double>
     }
 
     @Override
-    public PearsonsCorrelationProcessor newInstance(String json) {
+    public PearsonsCorrelationProcessor newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

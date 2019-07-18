@@ -31,7 +31,7 @@ import org.lisapark.koctopus.core.runtime.ProcessorContext;
 
 import java.util.Map;
 import java.util.UUID;
-import org.lisapark.koctopus.core.Reproducible;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.memory.Memory;
 import org.lisapark.koctopus.core.memory.MemoryProvider;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
@@ -93,7 +93,7 @@ public class Crossing extends Processor<Pair> {
     }
 
     @Override
-    public Crossing newInstance(String json) {
+    public Crossing newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

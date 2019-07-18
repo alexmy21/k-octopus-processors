@@ -43,6 +43,7 @@ import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import static com.google.common.base.Preconditions.checkState;
 import java.util.logging.Level;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.openide.util.Exceptions;
 
@@ -144,7 +145,7 @@ public class DbScannerSource  extends ExternalSource {
     }
 
     @Override
-    public DbScannerSource newInstance(String json) {
+    public DbScannerSource newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

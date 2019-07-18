@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
@@ -108,7 +109,7 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     }
 
     @Override
-    public ConsoleSinkRedis newInstance(String json) {
+    public ConsoleSinkRedis newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -146,14 +147,14 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
         @Override
         public synchronized void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId) {
 
-            String className = consoleSink.getInput().getSource().getClass().getCanonicalName();
-            UUID id = consoleSink.getInput().getSource().getId();
+            String sourceClassName = consoleSink.getInput().getSource().getClass().getCanonicalName();
+            UUID sourceId = consoleSink.getInput().getSource().getId();
 
             int pageSize = 10;
             String offset = "0";
             int counter = 1000;
             while (true) {
-                List<StreamMessage<String, String>> list = runtime.readFromStream(className, id, offset, pageSize);
+                List<StreamMessage<String, String>> list = runtime.readFromStream(sourceClassName, sourceId, offset, pageSize);
 
                 if (list.size() > 0) { // a message was read                    
                     list.forEach(msg -> {

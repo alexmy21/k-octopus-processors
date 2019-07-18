@@ -31,6 +31,7 @@ import org.lisapark.koctopus.core.runtime.ProcessorContext;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
 import org.lisapark.koctopus.core.processor.Processor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
@@ -102,8 +103,9 @@ public class Sma extends Processor<Double> {
     }
 
     @Override
-    public Sma newInstance(String json) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Sma newInstance(Gnode gnode) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+//To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
