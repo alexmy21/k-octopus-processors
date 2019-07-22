@@ -16,28 +16,30 @@
  */
 package org.lisapark.koctopus.compute;
 
+import org.lisapark.koctopus.core.graph.NodeVocabulary;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.lisapark.koctopus.compute.processor.sma.Sma;
 import org.lisapark.koctopus.compute.sink.ConsoleSinkRedis;
 import org.lisapark.koctopus.compute.source.TestSourceRedis;
-import org.lisapark.koctopus.core.AbstractComponent;
 import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.event.Attribute;
 import org.lisapark.koctopus.core.graph.Edge;
 import org.lisapark.koctopus.core.graph.Graph;
 import org.lisapark.koctopus.core.graph.Gnode;
+import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.graph.Vocabulary;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.processor.Processor;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.Source;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
+import org.lisapark.koctopus.util.Pair;
 
 /**
  *
@@ -46,13 +48,13 @@ import org.lisapark.koctopus.core.source.external.ExternalSource;
 public class Main {
 
     public static void main(String[] args) {
-        
-        Graph graph = compile(createProcessingModel());
+
+        Graph graph = compileGraph(createProcessingModel());
 
         System.out.println(graph.toJson());
-        
+
         Graph graphCopy = new Graph().fromJson(graph.toJson().toString());
-        
+
         System.out.println(graphCopy.toJson());
 
 //        RedisRuntime runtime = new RedisRuntime("redis://localhost", System.out, System.err);
@@ -90,7 +92,7 @@ public class Main {
         return model;
     }
 
-    private static Graph compile(ProcessingModel model) {
+    private static Graph compileGraph(ProcessingModel model) {
         Graph graph = new Graph();
 
         graph.setId(model.getId().toString());
@@ -98,59 +100,88 @@ public class Main {
         graph.setType(Vocabulary.PROCESSING_GRAPH);
         graph.setDirected(Boolean.TRUE);
 
-        Map<String, Object> graphMetadata = new HashMap<>();
+        Multimap<String, String> graphMetadata = HashMultimap.create();
         graphMetadata.put(Vocabulary.TRANSPORT_URL, model.getTransportUrl());
 
-        graph.setProperties(graphMetadata);
+        Gson graphGson = GraphUtils.gsonGnodeMeta(graphMetadata);
+        String jsonGraphMetadata = graphGson.toJson(graphMetadata);
+        graph.setParams(jsonGraphMetadata);
 
         List<Gnode> nodes = new ArrayList<>();
         List<Edge> edges = new ArrayList<>();
 
+        // Sources
+        //======================================================================
         Set<ExternalSource> sources = model.getExternalSources();
         sources.stream().forEach((ExternalSource source) -> {
-            Gnode sourceNode = new Gnode();
-            sourceNode.setId(source.getId().toString());
-            sourceNode.setLabel(Vocabulary.SOURCE);
-            sourceNode.setType(source.getClass().getCanonicalName());
+            Gnode sourceGnode = new Gnode();
+            sourceGnode.setId(source.getId().toString());
+            sourceGnode.setLabel(Vocabulary.SOURCE);
+            sourceGnode.setType(source.getClass().getCanonicalName());
+            sourceGnode.setTransportUrl(model.getTransportUrl());
 
-            Map<String, Object> sourceProps = new HashMap<>();
+            Multimap<String, Pair<String, String>> sourceParams = HashMultimap.create();
             Set<Parameter> params = source.getParameters();
-            params.stream().forEach((Parameter param) -> {                
-                sourceProps.put(String.valueOf(param.getId()), param.getValue());
+            params.stream().forEach((Parameter param) -> {
+                // TODO: Extend list of parameters with Layout
+                String paramId = String.valueOf(param.getId());
+                sourceParams.put(paramId, new Pair<>(NodeVocabulary.NAME, param.getName()));
+                sourceParams.put(paramId, new Pair<>(NodeVocabulary.TYPE, param.getType().getCanonicalName()));
+                
+                String paramValue = param.getValue() == null ? null : param.getValue().toString();
+                sourceParams.put(paramId, new Pair<>(NodeVocabulary.VALUE, paramValue));
             });
-            sourceNode.setProperties(sourceProps);
+            Gson sourceGson = GraphUtils.gsonGnodeMeta(sourceParams);
+            String jsonSourceParams = sourceGson.toJson(sourceParams);
+            sourceGnode.setParams(jsonSourceParams);
 
-            Map<String, Object> sourcePropsOut = new HashMap<>();
+            Multimap<String, Pair<String, String>> sourceOutput = HashMultimap.create();
             List<Attribute> attrs = source.getOutput().getAttributes();
             attrs.stream().forEach((Attribute attr) -> {
-                sourcePropsOut.put(attr.getName(), attr.getType().getCanonicalName());
+                // TODO: Rxtend list of parameters with Layout
+                sourceOutput.put(attr.getName(), new Pair<>(NodeVocabulary.TYPE, attr.getType().getCanonicalName()));
             });
-            sourceNode.setPropertiesOut(sourcePropsOut);
+            Gson sourceOutputGson = GraphUtils.gsonGnodeMeta(sourceOutput);
+            String jsonSourceOutput = sourceOutputGson.toJson(sourceOutput);
+            sourceGnode.setOutput(jsonSourceOutput);
 
-            nodes.add(sourceNode);
+            nodes.add(sourceGnode);
         });
 
+        // Processors
+        //======================================================================
         Set<Processor> processors = model.getProcessors();
         processors.stream().forEach((Processor proc) -> {
-            Gnode procNode = new Gnode();
-            procNode.setId(proc.getId().toString());
-            procNode.setLabel(Vocabulary.PROCESSOR);
-            procNode.setType(proc.getClass().getCanonicalName());
+            Gnode procGnode = new Gnode();
+            procGnode.setId(proc.getId().toString());
+            procGnode.setLabel(Vocabulary.PROCESSOR);
+            procGnode.setType(proc.getClass().getCanonicalName());
+            procGnode.setTransportUrl(model.getTransportUrl());
 
-            Map<String, Object> procMetadata = new HashMap<>();
+            // Setting params
+            Multimap<String, Pair<String, String>> procParams = HashMultimap.create();
             Set<Parameter> params = proc.getParameters();
             params.stream().forEach((Parameter param) -> {
-                procMetadata.put(String.valueOf(param.getId()), param.getValue());
+                // TODO: Extend list of parameters with Layout
+                String paramId = String.valueOf(param.getId());
+                procParams.put(paramId, new Pair<>(NodeVocabulary.NAME, param.getName()));
+                procParams.put(paramId, new Pair<>(NodeVocabulary.TYPE, param.getType().getCanonicalName()));
+                
+                String paramValue = param.getValue() == null ? null : param.getValue().toString();
+                procParams.put(paramId, new Pair<>(NodeVocabulary.VALUE, paramValue));
             });
-            procNode.setProperties(procMetadata);
+            Gson procGson = GraphUtils.gsonGnodeMeta(procParams);
+            String jsonSourceParams = procGson.toJson(procParams);
+            procGnode.setParams(jsonSourceParams);
 
-            Map<String, Object> procPropsIn = new HashMap<>();
+            // Setting inputs
+            Multimap<String, Pair<String, String>> procInput = HashMultimap.create();
             List<Input> inputs = proc.getInputs();
             inputs.stream().forEach((Input input) -> {
                 Source source = input.getSource();
                 List<Attribute> attrs = source.getOutput().getAttributes();
                 attrs.stream().forEach((Attribute attr) -> {
-                    procPropsIn.put(attr.getName(), attr.getType().getCanonicalName());
+                    procInput.put(attr.getName(), new Pair<>(NodeVocabulary.TYPE, attr.getType().getCanonicalName()));
                 });
                 // Create edge
                 Edge edge = new Edge();
@@ -161,39 +192,58 @@ public class Main {
                 edge.setTarget(proc.getClass().getCanonicalName() + ":" + proc.getId().toString());
                 edges.add(edge);
             });
-            procNode.setPropertiesIn(procPropsIn);
-
-            Map<String, Object> procPropsOut = new HashMap<>();
+            Gson procInputGson = GraphUtils.gsonGnodeMeta(procInput);
+            String jsonSourceInput = procInputGson.toJson(procInput);
+            procGnode.setInput(jsonSourceInput);
+            
+            // Setting outputs
+            Multimap<String, Pair<String, String>> procOutput = HashMultimap.create();
             List<Attribute> attrs = proc.getOutput().getAttributes();
             attrs.stream().forEach((Attribute attr) -> {
-                procPropsOut.put(attr.getName(), attr.getType().getCanonicalName());
+                // TODO: Rxtend list of parameters with Layout
+                procOutput.put(attr.getName(), new Pair<>(NodeVocabulary.TYPE, attr.getType().getCanonicalName()));
             });
-            procNode.setPropertiesOut(procPropsOut);
-
-            nodes.add(procNode);
+            Gson procOutputGson = GraphUtils.gsonGnodeMeta(procOutput);
+            String jsonSourceOutput = procOutputGson.toJson(procOutput);
+            procGnode.setOutput(jsonSourceOutput);
+            
+            nodes.add(procGnode);
         });
 
+        // Sinks
+        //======================================================================
         Set<ExternalSink> sinks = model.getExternalSinks();
         sinks.stream().forEach((ExternalSink sink) -> {
-            Gnode sinkNode = new Gnode();
-            sinkNode.setId(sink.getId().toString());
-            sinkNode.setLabel(Vocabulary.SINK);
-            sinkNode.setType(sink.getClass().getCanonicalName());
+            Gnode sinkGnode = new Gnode();
+            sinkGnode.setId(sink.getId().toString());
+            sinkGnode.setLabel(Vocabulary.SINK);
+            sinkGnode.setType(sink.getClass().getCanonicalName());
+            sinkGnode.setTransportUrl(model.getTransportUrl());
 
-            Map<String, Object> sinkMetadata = new HashMap<>();
+            // Setting params
+            Multimap<String, Pair<String, String>> sinkParams = HashMultimap.create();
             Set<Parameter> params = sink.getParameters();
             params.stream().forEach((Parameter param) -> {
-                sinkMetadata.put(String.valueOf(param.getId()), param.getValue());
+                // TODO: Extend list of parameters with Layout
+                String paramId = String.valueOf(param.getId());
+                sinkParams.put(paramId, new Pair<>(NodeVocabulary.NAME, param.getName()));
+                sinkParams.put(paramId, new Pair<>(NodeVocabulary.TYPE, param.getType().getCanonicalName()));
+                
+                String paramValue = param.getValue() == null ? null : param.getValue().toString();
+                sinkParams.put(paramId, new Pair<>(NodeVocabulary.VALUE, paramValue));
             });
-            sinkNode.setProperties(sinkMetadata);
-
-            Map<String, Object> sinkPropsIn = new HashMap<>();
+            Gson sinkGson = GraphUtils.gsonGnodeMeta(sinkParams);
+            String jsonSinkParams = sinkGson.toJson(sinkParams);
+            sinkGnode.setParams(jsonSinkParams);
+            
+            // Setting inputs
+            Multimap<String, Pair<String, String>> sinkInput = HashMultimap.create();
             List<? extends Input> inputs = sink.getInputs();
             inputs.stream().forEach((Input input) -> {
                 Source source = input.getSource();
                 List<Attribute> attrs = source.getOutput().getAttributes();
                 attrs.stream().forEach((Attribute attr) -> {
-                    sinkPropsIn.put(attr.getName(), attr.getType().getCanonicalName());
+                    sinkInput.put(attr.getName(), new Pair<>(NodeVocabulary.TYPE, attr.getType().getCanonicalName()));
                 });
                 // Create edge
                 Edge edge = new Edge();
@@ -204,9 +254,11 @@ public class Main {
                 edge.setTarget(sink.getClass().getCanonicalName() + ":" + sink.getId().toString());
                 edges.add(edge);
             });
-            sinkNode.setPropertiesIn(sinkPropsIn);
-
-            nodes.add(sinkNode);
+            Gson sinkInputGson = GraphUtils.gsonGnodeMeta(sinkInput);
+            String jsonSinkInput = sinkInputGson.toJson(sinkInput);
+            sinkGnode.setInput(jsonSinkInput);
+            
+            nodes.add(sinkGnode);
         });
 
         graph.setNodes(nodes);

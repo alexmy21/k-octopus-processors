@@ -16,8 +16,22 @@
  */
 package org.lisapark.koctopus.compute;
 
+import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.lisapark.koctopus.core.Output;
+import org.lisapark.koctopus.core.ProcessingException;
+import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.Vocabulary;
+import org.lisapark.koctopus.core.parameter.Parameter;
+import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
+import org.lisapark.koctopus.core.sink.external.ExternalSink;
+import org.lisapark.koctopus.core.source.external.ExternalSource;
+import org.openide.util.Exceptions;
 import spark.Request;
 import spark.Response;
 
@@ -27,7 +41,7 @@ import spark.Response;
  */
 public class Controller {
 
-    static String command;
+    private static final String DEFAULT_TRANSPORT_URL = "redis://localhost";
 
     enum Status {
         SUCCESS(200),
@@ -43,11 +57,8 @@ public class Controller {
         }
     }
 
-    public static String process(Request req, Response res, String command) {
-
+    public static String process(Request req, Response res) throws ValidationException, ProcessingException {
         String requestJson = req.body();
-        command = command.replaceAll("-", "_").toUpperCase();
-
         String result = null;
 
         res.type("application/json;charset=utf8");
@@ -57,29 +68,41 @@ public class Controller {
         if (!ServiceUtils.validateInput(requestJson)) {
             res.status(Status.ERROR.getStatusCode());
         } else {
-            res.status(Status.SUCCESS.getStatusCode());
-            
-            Gnode gnode = new Gnode().fromJson(requestJson);            
-            switch(gnode.getLabel()){
-                case Vocabulary.SOURCE:
-                    
-                    break;
-                case Vocabulary.PROCESSOR:
-                    
-                    break;
-                case Vocabulary.SINK:
-                    
-                    break;
-                default:
-                    res.status(Status.ERROR.getStatusCode());
-                    break;
-            }            
+            try {
+                res.status(Status.SUCCESS.getStatusCode());
+                Gnode gnode = (Gnode) new Gnode().fromJson(requestJson);
+                String transportUrl = gnode.getTransportUrl() == null ? DEFAULT_TRANSPORT_URL : gnode.getTransportUrl();
+                RedisRuntime runtime = new RedisRuntime(transportUrl, System.out, System.err);
+                
+                String type;
+                switch (gnode.getLabel()) {
+                    case Vocabulary.SOURCE:
+                        type = gnode.getType();                         
+                        ExternalSource sourceIns = (ExternalSource) Class.forName(type).newInstance();
+                        ExternalSource source = (ExternalSource) sourceIns.newInstance(gnode);
+                        result = new Gson().toJson(source.getOutput(), Output.class);
+                        source.compile().startProcessingEvents(runtime);
 
-//            Processor proc_mp = new ProcessorMap().newInstance();
-//            proc_mp.setCommand(command);
-//            proc_mp.setInput(requestJson);
-//            outputmap = (OutputMap) proc_mp.process();
-//            result = outputmap == null ? "[\"No data\"]" : outputmap.toJsonString();
+                        break;
+                    case Vocabulary.PROCESSOR:
+
+                        break;
+                    case Vocabulary.SINK:
+                        type = gnode.getType();
+                        ExternalSink sinkIns = (ExternalSink) Class.forName(type).newInstance();
+                        ExternalSink sink = (ExternalSink) sinkIns.newInstance(gnode);
+                        result = new Gson().toJson(sink.getInputs().get(0).getSource().getOutput(), Output.class);
+                        sink.compile().processEvent(runtime, null);
+
+                        break;
+                    default:
+                        res.status(Status.ERROR.getStatusCode());
+                        break;
+                }
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
         }
         return result;
     }

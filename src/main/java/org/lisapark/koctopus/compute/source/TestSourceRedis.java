@@ -16,7 +16,11 @@
  */
 package org.lisapark.koctopus.compute.source;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.gson.Gson;
+import java.util.Collection;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.Persistable;
 import org.lisapark.koctopus.core.ValidationException;
@@ -30,12 +34,16 @@ import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.graph.Gnode;
+import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
+import org.lisapark.koctopus.util.Pair;
 import org.openide.util.Exceptions;
 
 /**
@@ -43,83 +51,80 @@ import org.openide.util.Exceptions;
  */
 @Persistable
 public class TestSourceRedis extends ExternalSource {
-
+    
     private static final String DEFAULT_NAME = "Test data source for Redis";
     private static final String DEFAULT_DESCRIPTION = "Generate source data according to the provided attribute list.";
-
+    
     private static final int NUMBER_OF_EVENTS_PARAMETER_ID = 1;
     private static final int TRANSPORT_PARAMETER_ID = 2;
-
-    private static void initAttributeList(TestSourceRedis testSource)  throws ValidationException {
+    
+    private static void initAttributeList(TestSourceRedis testSource) throws ValidationException {
         testSource.getOutput().addAttribute(Attribute.newAttribute(Integer.class, "Att"));
     }
-
+    
+    public TestSourceRedis() {
+        super(UUID.randomUUID());
+    }
+    
     public TestSourceRedis(UUID id, String name, String description) {
         super(id, name, description);
     }
-
+    
     private TestSourceRedis(UUID id, TestSourceRedis copyFromSource) {
         super(id, copyFromSource);
     }
-
+    
     public TestSourceRedis(TestSourceRedis copyFromSource) {
         super(copyFromSource);
     }
-
+    
     public Integer getNumberOfEvents() {
         return getParameter(NUMBER_OF_EVENTS_PARAMETER_ID).getValueAsInteger();
     }
     
-    public String getRedisUrl(){
+    public String getRedisUrl() {
         return getParameterValueAsString(TRANSPORT_PARAMETER_ID);
     }
-
+    
     @Override
     public TestSourceRedis copyOf() {
         return new TestSourceRedis(this);
     }
-
+    
     @Override
     public TestSourceRedis newInstance() {
         UUID sourceId = UUID.randomUUID();
         return new TestSourceRedis(sourceId, this);
     }
-
+    
     @Override
     public TestSourceRedis newInstance(Gnode gnode) {
-        
-        TestSourceRedis testSource = new TestSourceRedis(UUID.fromString(gnode.getId()),copyOf());
-        
-        gnode.getProperties().entrySet().forEach((Entry<String, Object> e) -> {
-            Integer k = Integer.parseInt(e.getKey());
-            try {
-                testSource.getParameter(k).setValue(e.getValue());
-            } catch (ValidationException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        });
-       
-        // Source has no Inputs, so we are moving directly to Output
-        gnode.getPropertiesOut().entrySet().forEach((Entry<String, Object> e) -> {
-            try {
-                Class clazz = Class.forName((String) e.getValue());
-                Attribute attr =  Attribute.newAttribute(clazz, e.getKey());
-                if(testSource.getOutput().containsAttribute(attr)){
-                    // Do Nothing
-                } else {
-                    testSource.getOutput().addAttribute(attr);
-                }
-            } catch (ValidationException | ClassNotFoundException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        });
-        
+        TestSourceRedis testSource = newTemplate(UUID.fromString(gnode.getId()));
+        String paramsJson = gnode.getParams();
+        Multimap<String, Pair<String, String>> paramMap = GraphUtils.multimapFromString(paramsJson);
+        Set<Parameter> params = testSource.getParameters();
+        try {
+            GraphUtils.processParams(params, paramMap);
+            params.stream().forEach((Parameter param) -> {
+                testSource.addParameter(param);
+            });
+            
+            String outputJson = gnode.getOutput();            
+            Output output = testSource.getOutput();
+            output = GraphUtils.processAttributes(output, outputJson);
+            testSource.setOutput(output);
+        } catch (ValidationException | ClassNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        }
         return testSource;
     }
-
+    
     public static TestSourceRedis newTemplate() {
         UUID sourceId = UUID.randomUUID();
-
+        return newTemplate(sourceId);
+    }
+    
+    public static TestSourceRedis newTemplate(UUID sourceId) {
         TestSourceRedis testSource = new TestSourceRedis(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         testSource.setOutput(Output.outputWithId(1).setName("Output"));
         testSource.addParameter(
@@ -127,7 +132,7 @@ public class TestSourceRedis extends ExternalSource {
                         description("Number of test events to generate.").
                         defaultValue(10).
                         constraint(Constraints.integerConstraintWithMinimumAndMessage(1,
-                        "Number of events has to be greater than zero.")));
+                                "Number of events has to be greater than zero.")));
         testSource.addParameter(
                 Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Redis URL").
                         description("Redis URL.").
@@ -141,39 +146,42 @@ public class TestSourceRedis extends ExternalSource {
         
         return testSource;
     }
-
+    
     @Override
     public CompiledExternalSource compile() throws ValidationException {
         return new CompiledTestSource(copyOf());
     }
-
+    
     static class CompiledTestSource implements CompiledExternalSource {
-
+        
         private final TestSourceRedis source;
 
         /**
-         * Running is declared volatile because it may be access my different threads
+         * Running is declared volatile because it may be access my different
+         * threads
          */
         private volatile boolean running;
         private final long SLIEEP_TIME = 1L;
-
+        
         public CompiledTestSource(TestSourceRedis source) {
             this.source = source;
         }
-
+        
         @Override
-        public void startProcessingEvents(StreamProcessingRuntime runtime) {
+        public void startProcessingEvents(StreamProcessingRuntime runtime) {    
+            
+            
             Thread thread = Thread.currentThread();
             runtime.start();
             running = true;
-
+            
             EventType eventType = source.getOutput().getEventType();
             List<Attribute> attributes = eventType.getAttributes();
             int numberEventsCreated = 0;
-
+            
             while (!thread.isInterrupted() && running && numberEventsCreated < source.getNumberOfEvents()) {
                 Event e = createEvent(attributes, numberEventsCreated++);
-
+                
                 runtime.sendEventFromSource(e, source.getClass().getCanonicalName(), source.getId());
                 
                 try {
@@ -183,22 +191,22 @@ public class TestSourceRedis extends ExternalSource {
                 }
             }
         }
-
+        
         private Event createEvent(List<Attribute> attributes, int eventNumber) {
             Map<String, Object> attributeData = Maps.newHashMap();
-
+            
             attributes.forEach((attribute) -> {
                 attributeData.put(attribute.getName(), attribute.createSampleData(eventNumber));
             });
-
+            
             return new Event(attributeData);
         }
-
+        
         @Override
         public void stopProcessingEvents() {
             running = false;
         }
-
+        
         @Override
         public void startProcessingEvents(ProcessingRuntime runtime) throws ProcessingException {
             
