@@ -99,26 +99,13 @@ public class TestSourceRedis extends ExternalSource {
     
     @Override
     public TestSourceRedis newInstance(Gnode gnode) {
-        TestSourceRedis testSource = newTemplate(UUID.fromString(gnode.getId()));
-        String paramsJson = gnode.getParams();
-        Multimap<String, Pair<String, String>> paramMap = GraphUtils.multimapFromString(paramsJson);
-        Set<Parameter> params = testSource.getParameters();
-        try {
-            GraphUtils.processParams(params, paramMap);
-            params.stream().forEach((Parameter param) -> {
-                testSource.addParameter(param);
-            });
-            
-            String outputJson = gnode.getOutput();            
-            Output output = testSource.getOutput();
-            output = GraphUtils.processAttributes(output, outputJson);
-            testSource.setOutput(output);
-        } catch (ValidationException | ClassNotFoundException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        String uuid = gnode.getId() == null ? UUID.randomUUID().toString() : gnode.getId();
+        TestSourceRedis testSource = newTemplate(UUID.fromString(uuid));
+        GraphUtils.buildSource(testSource, gnode);
+        
         return testSource;
     }
-    
+   
     public static TestSourceRedis newTemplate() {
         UUID sourceId = UUID.randomUUID();
         return newTemplate(sourceId);
@@ -136,8 +123,7 @@ public class TestSourceRedis extends ExternalSource {
         testSource.addParameter(
                 Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Redis URL").
                         description("Redis URL.").
-                        defaultValue("redis://localhost").
-                        constraint(Constraints.classConstraintWithMessage("Redis URL cannot be null.")));
+                        defaultValue("redis://localhost"));
         try {
             initAttributeList(testSource);
         } catch (ValidationException ex) {

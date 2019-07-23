@@ -21,6 +21,9 @@ import org.openide.util.Exceptions;
 public class MainMultimap {
 
     public static void main(String[] args) {
+//        Integer intg = new Integer();
+//        
+//        String str = new String();
         try {
             Multimap<String, Pair<String, String>> map = HashMultimap.create();
             map.put("one", new Pair("name", "One"));

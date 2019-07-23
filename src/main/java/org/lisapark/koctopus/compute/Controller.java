@@ -19,13 +19,16 @@ package org.lisapark.koctopus.compute;
 import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.graph.Gnode;
+import org.lisapark.koctopus.core.graph.NodeVocabulary;
 import org.lisapark.koctopus.core.graph.Vocabulary;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
@@ -80,7 +83,7 @@ public class Controller {
                         type = gnode.getType();                         
                         ExternalSource sourceIns = (ExternalSource) Class.forName(type).newInstance();
                         ExternalSource source = (ExternalSource) sourceIns.newInstance(gnode);
-                        result = new Gson().toJson(source.getOutput(), Output.class);
+                        result = new Gson().toJson(sourceResponse(source, transportUrl));
                         source.compile().startProcessingEvents(runtime);
 
                         break;
@@ -91,7 +94,7 @@ public class Controller {
                         type = gnode.getType();
                         ExternalSink sinkIns = (ExternalSink) Class.forName(type).newInstance();
                         ExternalSink sink = (ExternalSink) sinkIns.newInstance(gnode);
-                        result = new Gson().toJson(sink.getInputs().get(0).getSource().getOutput(), Output.class);
+                        result = new Gson().toJson(sinkResponse(sink, transportUrl));
                         sink.compile().processEvent(runtime, null);
 
                         break;
@@ -105,5 +108,23 @@ public class Controller {
 
         }
         return result;
+    }
+    
+    private static Map<String, String> sourceResponse(ExternalSource source, String transportUrl){
+        Map<String, String> map = new HashMap<>();
+        map.put("transportUrl", transportUrl);
+        map.put("className", source.getClass().getCanonicalName());
+        map.put("Id", source.getId().toString());
+        
+        return map;
+    }
+    
+    private static Map<String, String> sinkResponse(ExternalSink sink, String transportUrl){
+        Map<String, String> map = new HashMap<>();
+        map.put("transportUrl", transportUrl);
+        map.put("className", sink.getClass().getCanonicalName());
+        map.put("Id", sink.getId().toString());
+        
+        return map;
     }
 }

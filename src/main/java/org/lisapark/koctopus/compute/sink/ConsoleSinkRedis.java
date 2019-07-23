@@ -32,7 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import org.lisapark.koctopus.compute.source.TestSourceRedis;
+import static org.lisapark.koctopus.compute.source.TestSourceRedis.newTemplate;
 import org.lisapark.koctopus.core.graph.Gnode;
+import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
@@ -110,7 +113,11 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
 
     @Override
     public ConsoleSinkRedis newInstance(Gnode gnode) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String uuid = gnode.getId() == null ? UUID.randomUUID().toString() : gnode.getId();
+        ConsoleSinkRedis testSource = newTemplate(UUID.fromString(uuid));
+        GraphUtils.buildSink(testSource, gnode);
+        
+        return testSource;
     }
 
     @Override
@@ -119,14 +126,17 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     }
 
     public static ConsoleSinkRedis newTemplate() {
-        UUID sinkId = UUID.randomUUID();
+        UUID sinkId = UUID.randomUUID();        
+        return newTemplate(sinkId);
+    }
+    
+    public static ConsoleSinkRedis newTemplate(UUID sinkId) {
         ConsoleSinkRedis consoleSink = new ConsoleSinkRedis(sinkId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         consoleSink.addParameter(
                 Parameter.stringParameterWithIdAndName(ATTRIBUTE_LIST_PARAMETER_ID, ATTRIBUTE_LIST)
                         .description(ATTRIBUTE_LIST_DESCRIPTION)
         );
-
         return consoleSink;
     }
 
