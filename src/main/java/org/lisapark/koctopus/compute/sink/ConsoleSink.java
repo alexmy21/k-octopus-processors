@@ -18,6 +18,7 @@ package org.lisapark.koctopus.compute.sink;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Iterator;
 import org.lisapark.koctopus.core.AbstractNode;
 import org.lisapark.koctopus.core.Input;
@@ -36,6 +37,7 @@ import org.lisapark.koctopus.core.event.Attribute;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 
@@ -54,6 +56,8 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
             "List comma separated attribute names that you would like to show on Console. Empty - will show all attributes.";
     
     private final Input<Event> input;
+    
+    protected Map<String, StreamReference> sourceref = new HashMap<>();
 
     private ConsoleSink(UUID id, String name, String description) {
         super(id, name, description);
@@ -133,6 +137,16 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
     @Override
     public CompiledExternalSink compile() throws ValidationException {
         return new CompiledConsole(copyOf());
+    }
+
+    @Override
+    public Map<String,StreamReference> getReferences() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setReferences(Map<String,StreamReference> sourceref) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     static class CompiledConsole extends CompiledExternalSink {

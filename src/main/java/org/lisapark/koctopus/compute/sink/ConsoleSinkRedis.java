@@ -19,6 +19,7 @@ package org.lisapark.koctopus.compute.sink;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import io.lettuce.core.StreamMessage;
+import java.util.HashMap;
 import java.util.Iterator;
 import org.lisapark.koctopus.core.AbstractNode;
 import org.lisapark.koctopus.core.Input;
@@ -38,6 +39,7 @@ import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 
@@ -52,11 +54,23 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     private static final String DEFAULT_INPUT = "Input";
 
     private static final int ATTRIBUTE_LIST_PARAMETER_ID = 1;
+    private static final int PAGE_SIZE_PARAMETER_ID = 2;
+    private static final int OFFSET_PARAMETER_ID = 3;
     private static final String ATTRIBUTE_LIST = "Show Attributes";
     private static final String ATTRIBUTE_LIST_DESCRIPTION
             = "List comma separated attribute names that you would like to show on Console. Empty - will show all attributes.";
+    
+    private static final String PAGE_SIZE = "Page size";
+    private static final String PAGE_SIZE_DESCRIPTION
+            = "Page size description goes here.";
+    
+    private static final String OFFSET = "Offset";
+    private static final String OFFSET_DESCRIPTION
+            = "Offset description goes here.";
 
     private final Input<Event> input;
+    
+    protected Map<String, StreamReference> sourcerefs = new HashMap<>();
 
     private ConsoleSinkRedis(UUID id, String name, String description) {
         super(id, name, description);
@@ -82,6 +96,24 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
 
     public String getAttributeList() {
         return getParameter(ATTRIBUTE_LIST_PARAMETER_ID).getValueAsString();
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void setPageSize(Integer pageSize) throws ValidationException {
+        getParameter(PAGE_SIZE_PARAMETER_ID).setValue(pageSize);
+    }
+
+    public Integer getPageSize() {
+        return getParameter(PAGE_SIZE_PARAMETER_ID).getValueAsInteger();
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void setOffset(Integer offset) throws ValidationException {
+        getParameter(OFFSET_PARAMETER_ID).setValue(offset);
+    }
+
+    public Integer getOffset() {
+        return getParameter(OFFSET_PARAMETER_ID).getValueAsInteger();
     }
 
     public Input<Event> getInput() {
@@ -116,7 +148,6 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
         String uuid = gnode.getId() == null ? UUID.randomUUID().toString() : gnode.getId();
         ConsoleSinkRedis testSource = newTemplate(UUID.fromString(uuid));
         GraphUtils.buildSink(testSource, gnode);
-        
         return testSource;
     }
 
@@ -126,16 +157,26 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     }
 
     public static ConsoleSinkRedis newTemplate() {
-        UUID sinkId = UUID.randomUUID();        
+        UUID sinkId = UUID.randomUUID();
         return newTemplate(sinkId);
     }
-    
+
     public static ConsoleSinkRedis newTemplate(UUID sinkId) {
         ConsoleSinkRedis consoleSink = new ConsoleSinkRedis(sinkId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         consoleSink.addParameter(
                 Parameter.stringParameterWithIdAndName(ATTRIBUTE_LIST_PARAMETER_ID, ATTRIBUTE_LIST)
                         .description(ATTRIBUTE_LIST_DESCRIPTION)
+        );
+        
+        consoleSink.addParameter(
+                Parameter.integerParameterWithIdAndName(PAGE_SIZE_PARAMETER_ID, PAGE_SIZE)
+                        .description(PAGE_SIZE_DESCRIPTION).defaultValue(100)
+        );
+        
+        consoleSink.addParameter(
+                Parameter.integerParameterWithIdAndName(OFFSET_PARAMETER_ID, OFFSET)
+                        .description(OFFSET_DESCRIPTION).defaultValue(0)
         );
         return consoleSink;
     }
@@ -145,26 +186,44 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
         return new CompiledConsole(copyOf());
     }
 
+    @Override
+    public Map<String,StreamReference> getReferences() {
+        return sourcerefs;
+    }
+
+    @Override
+    public void setReferences(Map<String, StreamReference> sourceref) {
+        this.sourcerefs = sourceref;
+    }
+
     static class CompiledConsole extends CompiledExternalSink {
 
-        private final ConsoleSinkRedis consoleSink;
+        private final ConsoleSinkRedis sink;
 
+        /**
+         *
+         * @param processor
+         */
         protected CompiledConsole(ConsoleSinkRedis processor) {
             super(processor);
-            this.consoleSink = processor;
+            this.sink = processor;
         }
 
+        /**
+         *
+         * @param runtime
+         * @param eventsByInputId
+         */
         @Override
         public synchronized void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId) {
 
-            String sourceClassName = consoleSink.getInput().getSource().getClass().getCanonicalName();
-            UUID sourceId = consoleSink.getInput().getSource().getId();
+            String sourceClassName = sink.getInput().getSource().getClass().getCanonicalName();
+            UUID sourceId = sink.getInput().getSource().getId();
 
-            int pageSize = 10;
-            String offset = "0";
-            int counter = 1000;
+            int pageSize = sink.getPageSize();
+            int offset = sink.getOffset();
             while (true) {
-                List<StreamMessage<String, String>> list = runtime.readFromStream(sourceClassName, sourceId, offset, pageSize);
+                List<StreamMessage<String, String>> list = runtime.readFromStream(sourceClassName, sourceId, String.valueOf(offset), pageSize);
 
                 if (list.size() > 0) { // a message was read                    
                     list.forEach(msg -> {
@@ -174,21 +233,32 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
                             runtime.getStandardOut().println("event is null");
                         }
                     });
-                    offset = list.get(list.size() - 1).getId();
+                    offset = offset + list.size();
                 } else {
                     break;
                 }
             }
         }
 
+        /**
+         *
+         * @param ctx
+         * @param eventsByInputId
+         */
         @Override
         public void processEvent(SinkContext ctx, Map<Integer, Event> eventsByInputId) {
 
         }
     }
 
+    /**
+     *
+     * @param map
+     * @param attr
+     * @param outputString
+     * @return
+     */
     public StringBuilder extractMap(Map<String, Object> map, String attr, StringBuilder outputString) {
-
         for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
             outputString.append(", ");
             Entry entry = (Entry) it.next();
@@ -198,7 +268,6 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
                 outputString = extractMap(_map, entry.getKey().toString(), outputString);
             }
         }
-
         return outputString;
     }
 }

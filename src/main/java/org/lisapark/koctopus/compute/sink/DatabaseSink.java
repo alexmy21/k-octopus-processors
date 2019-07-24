@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,6 +40,7 @@ import org.lisapark.koctopus.compute.util.Connections;
 import org.lisapark.koctopus.compute.util.DaoUtils;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.openide.util.Exceptions;
 
 /**
@@ -75,6 +77,8 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
     private static final String DEFAULT_INPUT = "Input data";
 
     private final Input<Event> input;
+    protected Map<String, StreamReference> sourceref = new HashMap<>();
+    
     private CompiledDatabaseSink compiledExternalSink;
 
     private DatabaseSink(UUID id, String name, String description) {
@@ -190,9 +194,9 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
 
         databaseSink.addParameter(
                 Parameter.stringParameterWithIdAndName(ATTRIBUTE_LIST_PARAMETER_ID, ATTRIBUTE_LIST)
-                .description(ATTRIBUTE_LIST_DESCRIPTION)
-                .defaultValue("RECORD_UUID,DATE,SHOP,SHIFT,MACHINE,PRODUCT,PRODUCT_TYPE,MATERIAL_TYPE,"
-                        + "RAW_MATERIAL,TOTAL_MATERIALS,TOTAL_PRODUCTS")
+                        .description(ATTRIBUTE_LIST_DESCRIPTION)
+                        .defaultValue("RECORD_UUID,DATE,SHOP,SHIFT,MACHINE,PRODUCT,PRODUCT_TYPE,MATERIAL_TYPE,"
+                                + "RAW_MATERIAL,TOTAL_MATERIALS,TOTAL_PRODUCTS")
         );
 
         return databaseSink;
@@ -202,6 +206,16 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
     public CompiledExternalSink compile() throws ValidationException {
         compiledExternalSink = new CompiledDatabaseSink(copyOf());
         return compiledExternalSink;
+    }
+
+    @Override
+    public Map<String, StreamReference> getReferences() {
+        return sourceref;
+    }
+
+    @Override
+    public void setReferences(Map<String, StreamReference> sourceref) {
+        this.sourceref = sourceref;
     }
 
     static class CompiledDatabaseSink extends CompiledExternalSink {
@@ -283,7 +297,7 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
 
         @Override
         public void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId) {
-            throw new UnsupportedOperationException("Not supported yet."); 
+            throw new UnsupportedOperationException("Not supported yet.");
             //To change body of generated methods, choose Tools | Templates.
         }
     }

@@ -50,6 +50,8 @@ public class Main {
     public static void main(String[] args) {
 
         Graph graph = compileGraph(createProcessingModel());
+        
+        System.out.println(new Gson().toJson(graph.getInput()));
 
         System.out.println(graph.toJson());
 
@@ -127,7 +129,7 @@ public class Main {
                 String paramId = String.valueOf(param.getId());
                 sourceParams.put(paramId, new Pair<>(NodeVocabulary.NAME, param.getName()));
                 sourceParams.put(paramId, new Pair<>(NodeVocabulary.TYPE, param.getType().getCanonicalName()));
-                
+
                 String paramValue = param.getValue() == null ? null : param.getValue().toString();
                 sourceParams.put(paramId, new Pair<>(NodeVocabulary.VALUE, paramValue));
             });
@@ -166,7 +168,7 @@ public class Main {
                 String paramId = String.valueOf(param.getId());
                 procParams.put(paramId, new Pair<>(NodeVocabulary.NAME, param.getName()));
                 procParams.put(paramId, new Pair<>(NodeVocabulary.TYPE, param.getType().getCanonicalName()));
-                
+
                 String paramValue = param.getValue() == null ? null : param.getValue().toString();
                 procParams.put(paramId, new Pair<>(NodeVocabulary.VALUE, paramValue));
             });
@@ -181,8 +183,12 @@ public class Main {
                 Source source = input.getSource();
                 List<Attribute> attrs = source.getOutput().getAttributes();
                 attrs.stream().forEach((Attribute attr) -> {
-                    procInput.put(attr.getName(), new Pair<>(NodeVocabulary.TYPE, attr.getType().getCanonicalName()));
+                    procInput.put(input.getName(), new Pair<>(NodeVocabulary.NAME, attr.getName()));
+                    procInput.put(input.getName(), new Pair<>(NodeVocabulary.TYPE, attr.getType().getCanonicalName()));
                 });
+                procInput.put(input.getName(), new Pair<>(NodeVocabulary.SOURCE_CLASS, source.getClass().getCanonicalName()));
+                procInput.put(input.getName(), new Pair<>(NodeVocabulary.SOURCE_ID, source.getId().toString()));
+
                 // Create edge
                 Edge edge = new Edge();
                 edge.setLabel(Vocabulary.MODEL);
@@ -195,7 +201,7 @@ public class Main {
             Gson procInputGson = GraphUtils.gsonGnodeMeta(procInput);
             String jsonSourceInput = procInputGson.toJson(procInput);
             procGnode.setInput(jsonSourceInput);
-            
+
             // Setting outputs
             Multimap<String, Pair<String, String>> procOutput = HashMultimap.create();
             List<Attribute> attrs = proc.getOutput().getAttributes();
@@ -206,7 +212,7 @@ public class Main {
             Gson procOutputGson = GraphUtils.gsonGnodeMeta(procOutput);
             String jsonSourceOutput = procOutputGson.toJson(procOutput);
             procGnode.setOutput(jsonSourceOutput);
-            
+
             nodes.add(procGnode);
         });
 
@@ -228,14 +234,14 @@ public class Main {
                 String paramId = String.valueOf(param.getId());
                 sinkParams.put(paramId, new Pair<>(NodeVocabulary.NAME, param.getName()));
                 sinkParams.put(paramId, new Pair<>(NodeVocabulary.TYPE, param.getType().getCanonicalName()));
-                
+
                 String paramValue = param.getValue() == null ? null : param.getValue().toString();
                 sinkParams.put(paramId, new Pair<>(NodeVocabulary.VALUE, paramValue));
             });
             Gson sinkGson = GraphUtils.gsonGnodeMeta(sinkParams);
             String jsonSinkParams = sinkGson.toJson(sinkParams);
             sinkGnode.setParams(jsonSinkParams);
-            
+
             // Setting inputs
             Multimap<String, Pair<String, String>> sinkInput = HashMultimap.create();
             List<? extends Input> inputs = sink.getInputs();
@@ -243,8 +249,11 @@ public class Main {
                 Source source = input.getSource();
                 List<Attribute> attrs = source.getOutput().getAttributes();
                 attrs.stream().forEach((Attribute attr) -> {
-                    sinkInput.put(attr.getName(), new Pair<>(NodeVocabulary.TYPE, attr.getType().getCanonicalName()));
+                    sinkInput.put(input.getName(), new Pair<>(NodeVocabulary.NAME, attr.getName()));
+                    sinkInput.put(input.getName(), new Pair<>(NodeVocabulary.TYPE, attr.getType().getCanonicalName()));
                 });
+                sinkInput.put(input.getName(), new Pair<>(NodeVocabulary.SOURCE_CLASS, source.getClass().getCanonicalName()));
+                sinkInput.put(input.getName(), new Pair<>(NodeVocabulary.SOURCE_ID, source.getId().toString()));
                 // Create edge
                 Edge edge = new Edge();
                 edge.setLabel(Vocabulary.MODEL);
@@ -257,7 +266,7 @@ public class Main {
             Gson sinkInputGson = GraphUtils.gsonGnodeMeta(sinkInput);
             String jsonSinkInput = sinkInputGson.toJson(sinkInput);
             sinkGnode.setInput(jsonSinkInput);
-            
+
             nodes.add(sinkGnode);
         });
 
