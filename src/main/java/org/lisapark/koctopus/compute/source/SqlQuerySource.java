@@ -60,7 +60,6 @@ import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 public class SqlQuerySource extends ExternalSource {
     private static final String DEFAULT_NAME = "Database Source";
     private static final String DEFAULT_DESCRIPTION = "Access to Database using SQL query.";
-
     private static final int URL_PARAMETER_ID = 1;
     private static final int USER_NAME_PARAMETER_ID = 2;
     private static final int PASSWORD_PARAMETER_ID = 3;
@@ -147,24 +146,26 @@ public class SqlQuerySource extends ExternalSource {
     public static SqlQuerySource newTemplate() {
         UUID sourceId = UUID.randomUUID();
         SqlQuerySource jdbc = new SqlQuerySource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
-
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(URL_PARAMETER_ID, "URL").required(true));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(USER_NAME_PARAMETER_ID, "User name"));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(PASSWORD_PARAMETER_ID, "Password:"));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(DRIVER_PARAMETER_ID, "Driver class name:").required(true).
                 constraint(Constraints.classConstraintWithMessage("%s is not a valid Driver Class")));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(QUERY_PARAMETER_ID, "SQL query:").required(true));
-
         jdbc.setOutput(Output.outputWithId(1).setName("Output data:"));
-
         return jdbc;
     }
 
     @Override
     public CompiledExternalSource compile() throws ValidationException {
         validate();
-
         return new CompiledSqlQuerySource(this.copyOf());
+    }
+
+    @Override
+    public <T extends ExternalSource> CompiledExternalSource compile(T source) throws ValidationException {
+        validate();
+        return new CompiledSqlQuerySource((SqlQuerySource) source);
     }
 
     private static class CompiledSqlQuerySource implements CompiledExternalSource {

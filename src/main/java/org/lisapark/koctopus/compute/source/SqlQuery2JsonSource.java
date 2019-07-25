@@ -167,8 +167,13 @@ public class SqlQuery2JsonSource extends ExternalSource {
     @Override
     public CompiledExternalSource compile() throws ValidationException {
         validate();
-
         return new CompiledSqlQuerySource(this.copyOf());
+    }
+
+    @Override
+    public <T extends ExternalSource> CompiledExternalSource compile(T source) throws ValidationException {
+        validate();
+        return new CompiledSqlQuerySource((SqlQuery2JsonSource) source);
     }
 
     private static class CompiledSqlQuerySource implements CompiledExternalSource {

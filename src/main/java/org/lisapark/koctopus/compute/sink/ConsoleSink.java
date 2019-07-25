@@ -149,6 +149,11 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public <T extends ExternalSink> CompiledExternalSink compile(T sink) throws ValidationException {
+        return new CompiledConsole((ConsoleSink) sink);
+    }
+
     static class CompiledConsole extends CompiledExternalSink {
         
         private final ConsoleSink consoleSink; 

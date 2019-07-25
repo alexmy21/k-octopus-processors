@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-import org.lisapark.koctopus.compute.source.TestSourceRedis;
-import static org.lisapark.koctopus.compute.source.TestSourceRedis.newTemplate;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.parameter.Parameter;
@@ -71,6 +69,13 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     private final Input<Event> input;
     
     protected Map<String, StreamReference> sourcerefs = new HashMap<>();
+    
+    public ConsoleSinkRedis(){
+        super(UUID.randomUUID(), DEFAULT_NAME, DEFAULT_DESCRIPTION);
+        input = Input.eventInputWithId(1);
+        input.setName(DEFAULT_INPUT);
+        input.setDescription(DEFAULT_INPUT);
+    }
 
     private ConsoleSinkRedis(UUID id, String name, String description) {
         super(id, name, description);
@@ -187,6 +192,11 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     }
 
     @Override
+    public <T extends ExternalSink> CompiledExternalSink compile(T sink) throws ValidationException {
+        return new CompiledConsole((ConsoleSinkRedis) sink);
+    }
+
+    @Override
     public Map<String,StreamReference> getReferences() {
         return sourcerefs;
     }
@@ -217,13 +227,14 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
         @Override
         public synchronized void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId) {
 
-            String sourceClassName = sink.getInput().getSource().getClass().getCanonicalName();
-            UUID sourceId = sink.getInput().getSource().getId();
+            String inputName = sink.getInput().getName();
+            String sourceClassName = sink.getReferences().get(inputName).getReferenceClass();
+            String sourceId = sink.getReferences().get(inputName).getReferenceId();
 
             int pageSize = sink.getPageSize();
             int offset = sink.getOffset();
             while (true) {
-                List<StreamMessage<String, String>> list = runtime.readFromStream(sourceClassName, sourceId, String.valueOf(offset), pageSize);
+                List<StreamMessage<String, String>> list = runtime.readFromStream(sourceClassName, UUID.fromString(sourceId), String.valueOf(offset), pageSize);
 
                 if (list.size() > 0) { // a message was read                    
                     list.forEach(msg -> {
@@ -234,10 +245,11 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
                         }
                     });
                     offset = offset + list.size();
+                    break;
                 } else {
                     break;
                 }
-            }
+            }            
         }
 
         /**

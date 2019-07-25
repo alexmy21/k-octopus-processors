@@ -114,6 +114,11 @@ public class TestRandomBinarySource extends ExternalSource {
         return new CompiledTestSource(copyOf());
     }
 
+    @Override
+    public <T extends ExternalSource> CompiledExternalSource compile(T source) throws ValidationException {
+        return new CompiledTestSource((TestRandomBinarySource)source);
+    }
+
     static class CompiledTestSource implements CompiledExternalSource {
 
         private final TestRandomBinarySource source;

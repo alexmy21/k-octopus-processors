@@ -157,7 +157,6 @@ public class DbScannerSource  extends ExternalSource {
     public static DbScannerSource newTemplate() {
         UUID sourceId = UUID.randomUUID();
         DbScannerSource jdbc = new DbScannerSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
-
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(URL_PARAMETER_ID, "URL").required(true));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(USER_NAME_PARAMETER_ID, "User name"));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(PASSWORD_PARAMETER_ID, "Password"));
@@ -165,17 +164,20 @@ public class DbScannerSource  extends ExternalSource {
                 constraint(Constraints.classConstraintWithMessage("%s is not a valid Driver Class")));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(QUERY_PARAMETER_ID, "Query").required(true));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(UPDATE_PARAMETER_ID, "Update").required(true));
-
         jdbc.setOutput(Output.outputWithId(1).setName("Output"));
-
         return jdbc;
     }
 
     @Override
     public CompiledExternalSource compile() throws ValidationException {
         validate();
-
         return new CompiledDbScannerSource(this.copyOf());
+    }
+
+    @Override
+    public <T extends ExternalSource> CompiledExternalSource compile(T source) throws ValidationException {
+        validate();
+        return new CompiledDbScannerSource((DbScannerSource) source);
     }
 
     private static class CompiledDbScannerSource implements CompiledExternalSource {
@@ -195,31 +197,24 @@ public class DbScannerSource  extends ExternalSource {
                 synchronized (this) {
                     checkState(!running, "Source is already processing events. Cannot call processEvents again");
                     running = true;
-                }
-                
+                }                
                 connection = getConnection(source.getDriverClass(), source.getUrl(), source.getUsername(), source.getPassword());
-
-                processResultSet(connection, runtime);
-                
+                processResultSet(connection, runtime);                
             } catch (SQLException ex) {
                 Exceptions.printStackTrace(ex);
-            }
-            
+            }            
         }
 
         void processResultSet(Connection conn, ProcessingRuntime runtime) throws SQLException, ProcessingException {
             Thread thread = Thread.currentThread();
             EventType eventType = source.getEventType();
-
             while (!thread.isInterrupted() && running) {
                 Statement statement = null;
                 ResultSet rs = null;
-
                 try {
                     statement = connection.createStatement();
                     rs = statement.executeQuery(source.getQuery());
-                    int retValue = statement.executeUpdate(source.getUpdate());
-                    
+                    int retValue = statement.executeUpdate(source.getUpdate());                    
                     if (retValue > 0) {
                         while (rs.next()) {
                             Event newEvent = createEventFromResultSet(rs, eventType);
@@ -227,8 +222,7 @@ public class DbScannerSource  extends ExternalSource {
                         }
                     } else {
                         throw new ProcessingException("Problem updating database to mark retrieved records as scanned. Please check your settings.");
-                    }
-                    
+                    }                    
                 } catch (SQLException e) {
                     throw new ProcessingException("Problem processing result set from database. Please check your settings.", e);
                 } finally {
@@ -243,14 +237,13 @@ public class DbScannerSource  extends ExternalSource {
             this.running = false;
         }
         
-        private Connection getConnection(String className, String url, String userName, String password)  throws ProcessingException {
-            
+        private Connection getConnection(String className, String url, String userName, String password)  throws ProcessingException {            
             try {
                 Class.forName(className);
             } catch (ClassNotFoundException e) {
                 // this should never happen since the parameter is constrained
                 throw new ProcessingException("Could not find JDBC Driver Class " + className, e);
-            }            
+            }           
 
             try {
                 if (connection == null) {
@@ -263,41 +256,32 @@ public class DbScannerSource  extends ExternalSource {
             } catch (SQLException e) {
                 throw new ProcessingException("Could not connect to database. Please check your settings.", e);
             }
-
             return connection;
         }
 
         Event createEventFromResultSet(ResultSet rs, EventType eventType) throws SQLException {
             Map<String, Object> attributeValues = Maps.newHashMap();
-
             for (Attribute attribute : eventType.getAttributes()) {
                 Class type = attribute.getType();
                 String attributeName = attribute.getName();
-
                 if (type == String.class) {
                     String value = rs.getString(attributeName);
                     attributeValues.put(attributeName, value);
-
                 } else if (type == Integer.class) {
                     int value = rs.getInt(attributeName);
                     attributeValues.put(attributeName, value);
-
                 } else if (type == Short.class) {
                     short value = rs.getShort(attributeName);
                     attributeValues.put(attributeName, value);
-
                 } else if (type == Long.class) {
                     long value = rs.getLong(attributeName);
                     attributeValues.put(attributeName, value);
-
                 } else if (type == Double.class) {
                     double value = rs.getDouble(attributeName);
                     attributeValues.put(attributeName, value);
-
                 } else if (type == Float.class) {
                     float value = rs.getFloat(attributeName);
                     attributeValues.put(attributeName, value);
-
                 } else if (type == Boolean.class) {
                     String value = rs.getString(attributeName);
                     attributeValues.put(attributeName, Booleans.parseBoolean(value));
@@ -305,17 +289,14 @@ public class DbScannerSource  extends ExternalSource {
                     throw new IllegalArgumentException(String.format("Unknown attribute type %s", type));
                 }
             }
-
             return new Event(attributeValues);
         }
         
         
         @Override
         protected void finalize() throws Throwable{
-            Connections.closeQuietly(connection);
-            
-            LOGGER.log(Level.INFO, "Connection: ====> {0}", "Closed!!!");
-            
+            Connections.closeQuietly(connection);            
+            LOGGER.log(Level.INFO, "Connection: ====> {0}", "Closed!!!");            
             super.finalize();            
         }
 

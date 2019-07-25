@@ -194,10 +194,13 @@ public class GdeltZipSource extends ExternalSource {
         return new CompiledTestSource(copyOf());
     }
 
+    @Override
+    public <T extends ExternalSource> CompiledExternalSource compile(T source) throws ValidationException {
+        return new CompiledTestSource((GdeltZipSource) source);
+    }
+
     static class CompiledTestSource implements CompiledExternalSource {
-
         private final GdeltZipSource source;
-
         /**
          * Running is declared volatile because it may be access my different
          * threads
@@ -210,35 +213,25 @@ public class GdeltZipSource extends ExternalSource {
 
         @Override
         public void startProcessingEvents(ProcessingRuntime runtime) {
-
             synchronized (this) {
                 checkState(!running, "Source is already processing events. Cannot call processEvents again");
                 running = true;
             }
-
             EventType eventType = source.getOutput().getEventType();
-
             Integer readLimit = source.getReadLimit();
             String fileName = source.getFileName();
             String zipDir = source.getZipDir();
-
             Map<String, Object> attributeData = Maps.newHashMap();
             int count = 0;
             String line;
-
             try {
                 ZipFile zipFile = new ZipFile(zipDir.endsWith("/") ? zipDir + fileName : zipDir + "/" + fileName);
-
                 final Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
                 while (running && entries.hasMoreElements()) {
-
                     final ZipEntry zipEntry = entries.nextElement();
-
                     if (!zipEntry.isDirectory()) {
                         InputStream input = zipFile.getInputStream(zipEntry);
                         try {
-
                             BufferedReader br = new BufferedReader(new InputStreamReader(input, "UTF-8"));
                             if (readLimit > 0) {
                                 while ((line = br.readLine()) != null && count < readLimit) {
@@ -251,7 +244,6 @@ public class GdeltZipSource extends ExternalSource {
                                     Event newEvent = createEventFromLine(line, eventType);
                                     runtime.sendEventFromSource(newEvent, source);
                                 }
-
                             }
                         } catch (IllegalArgumentException iae) {
                             System.err.println(iae.getMessage());
@@ -267,7 +259,6 @@ public class GdeltZipSource extends ExternalSource {
             } catch (final IOException ioe) {
                 System.err.println("Unhandled exception:");
             }
-
         }
 
         @Override
@@ -276,18 +267,14 @@ public class GdeltZipSource extends ExternalSource {
         }
 
         private synchronized Event createEventFromLine(String line, EventType eventType) {
-
             String[] fields = line.split("\\t");
-
             Map<String, Object> attributeValues = Maps.newHashMap();
-
             int index = 0;
             List<Attribute> attributes = eventType.getAttributes();
             for (Attribute attribute : attributes) {
                 Class type = attribute.getType();
                 String attributeName = attribute.getName();
                 String field = fields[index];
-
                 if (field.isEmpty()) {
                     attributeValues.put(attributeName, null);
                 } else {
@@ -295,27 +282,21 @@ public class GdeltZipSource extends ExternalSource {
                         if (type == String.class) {
                             String value = field;
                             attributeValues.put(attributeName, value);
-
                         } else if (type == Integer.class) {
                             int value = Integer.valueOf(field);
                             attributeValues.put(attributeName, value);
-
                         } else if (type == Short.class) {
                             short value = Short.valueOf(field);
                             attributeValues.put(attributeName, value);
-
                         } else if (type == Long.class) {
                             long value = Long.valueOf(field);
                             attributeValues.put(attributeName, value);
-
                         } else if (type == Double.class) {
                             double value = Double.valueOf(field);
                             attributeValues.put(attributeName, value);
-
                         } else if (type == Float.class) {
                             float value = Float.valueOf(field);
                             attributeValues.put(attributeName, value);
-
                         } else if (type == Boolean.class) {
                             attributeValues.put(attributeName, Booleans.parseBoolean(field));
                         } else {
@@ -326,13 +307,11 @@ public class GdeltZipSource extends ExternalSource {
                         attributeValues.put(attributeName, null);
                     }
                 }
-
                 index++;
                 if (index >= fields.length) {
                     break;
                 }
             }
-
             return new Event(attributeValues);
         }
 

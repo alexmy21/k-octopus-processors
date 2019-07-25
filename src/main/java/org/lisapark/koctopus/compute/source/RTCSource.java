@@ -106,6 +106,11 @@ public class RTCSource extends ExternalSource {
         return new CompiledRedisSource(copyOf());
     }
 
+    @Override
+    public <T extends ExternalSource> CompiledExternalSource compile(T source) throws ValidationException {
+        return new CompiledRedisSource((RTCSource) source);
+    }
+
     class CompiledRedisSource implements CompiledExternalSource {
 
         protected final Logger logger = Logger.getLogger(CompiledRedisSource.class.getName());

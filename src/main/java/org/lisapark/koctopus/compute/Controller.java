@@ -84,7 +84,7 @@ public class Controller {
                         ExternalSource sourceIns = (ExternalSource) Class.forName(type).newInstance();
                         ExternalSource source = (ExternalSource) sourceIns.newInstance(gnode);
                         result = new Gson().toJson(sourceResponse(source, transportUrl));
-                        source.compile().startProcessingEvents(runtime);
+                        source.compile(source).startProcessingEvents(runtime);
 
                         break;
                     case Vocabulary.PROCESSOR:
@@ -95,7 +95,7 @@ public class Controller {
                         ExternalSink sinkIns = (ExternalSink) Class.forName(type).newInstance();
                         ExternalSink sink = (ExternalSink) sinkIns.newInstance(gnode);
                         result = new Gson().toJson(sinkResponse(sink, transportUrl));
-                        sink.compile().processEvent(runtime, null);
+                        sink.compile(sink).processEvent(runtime, null);
 
                         break;
                     default:

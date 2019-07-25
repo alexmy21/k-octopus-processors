@@ -137,6 +137,11 @@ public class TestSourceRedis extends ExternalSource {
     public CompiledExternalSource compile() throws ValidationException {
         return new CompiledTestSource(copyOf());
     }
+
+    @Override
+    public <T extends ExternalSource> CompiledExternalSource compile(T source) throws ValidationException {
+        return new CompiledTestSource((TestSourceRedis)source);
+    }
     
     static class CompiledTestSource implements CompiledExternalSource {
         

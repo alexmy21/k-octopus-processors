@@ -153,11 +153,6 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
     }
 
     @Override
-    public DatabaseSink newInstance(Gnode gnode) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public DatabaseSink copyOf() {
         return new DatabaseSink(this);
     }
@@ -206,6 +201,17 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
     public CompiledExternalSink compile() throws ValidationException {
         compiledExternalSink = new CompiledDatabaseSink(copyOf());
         return compiledExternalSink;
+    }
+
+    @Override
+    public <T extends ExternalSink> CompiledExternalSink compile(T sink) throws ValidationException {
+        compiledExternalSink = new CompiledDatabaseSink(copyOf());
+        return compiledExternalSink;
+    }
+
+    @Override
+    public DatabaseSink newInstance(Gnode gnode) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

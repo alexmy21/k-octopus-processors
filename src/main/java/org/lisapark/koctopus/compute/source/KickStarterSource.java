@@ -155,6 +155,11 @@ public class KickStarterSource extends ExternalSource {
         return new CompiledModelSource(copyOf());
     }
 
+    @Override
+    public <T extends ExternalSource> CompiledExternalSource compile(T source) throws ValidationException {
+        return new CompiledModelSource((KickStarterSource) source);
+    }
+
     class CompiledModelSource implements CompiledExternalSource {
 
         protected final Logger logger = Logger.getLogger(CompiledModelSource.class.getName());
