@@ -135,7 +135,6 @@ public class Sma extends Processor<Double> {
     @Override
     public CompiledProcessor<Double> compile() throws ValidationException {
         validate();
-
         // we copy all the inputs and output taking a "snapshot" of this processor so we are isolated of changes
         Sma copy = copyOf();
         return new CompiledSma(copy);
@@ -150,7 +149,6 @@ public class Sma extends Processor<Double> {
     public static Sma newTemplate() {
         UUID processorId = UUID.randomUUID();
         Sma sma = new Sma(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
-
         // sma only has window length paramater
         sma.addParameter(
                 Parameter.integerParameterWithIdAndName(WINDOW_LENGTH_PARAMETER_ID, "Time window").
@@ -158,7 +156,6 @@ public class Sma extends Processor<Double> {
                         defaultValue(10).required(true).
                         constraint(Constraints.integerConstraintWithMinimumAndMessage(1, "Time window should be greater than 1."))
         );
-
         // only a single double input
         sma.addInput(
                 ProcessorInput.doubleInputWithId(INPUT_ID).name("Input").description(DEFAULT_INPUT_DESCRIPTION)
@@ -172,7 +169,6 @@ public class Sma extends Processor<Double> {
             // this should NOT happen. It means we created the SMA with an invalid attriubte name
             throw new ProgrammerException(ex);
         }
-
         return sma;
     }
 
@@ -191,24 +187,19 @@ public class Sma extends Processor<Double> {
         public Object processEvent(ProcessorContext<Double> ctx, Map<Integer, Event> eventsByInputId) {
             // sma only has a single event
             Event event = eventsByInputId.get(INPUT_ID);
-
             Double newItem = event.getAttributeAsDouble(inputAttributeName);
-
             if (newItem == null) {
                 newItem = 0D;
             }
             Memory<Double> processorMemory = ctx.getProcessorMemory();
             processorMemory.add(newItem);
-
             double total = 0;
             long numberItems = 0;
             final Collection<Double> memoryItems = processorMemory.values();
-
             for (Double memoryItem : memoryItems) {
                 total += memoryItem;
                 numberItems++;
             }
-
             return total / numberItems;
         }
     }

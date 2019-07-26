@@ -28,13 +28,10 @@ public class ComputeService {
         // Set Server port
         int _port = 4567;
         String endPoint = "/k-octopus/compute";
-
         if (args.length > 0) {
             _port = Integer.valueOf(args[0]);
-        }
-        
+        }        
         port(_port);
-
         // Map requests
         post(endPoint, (req, res) -> {
             return Controller.process(req, res);

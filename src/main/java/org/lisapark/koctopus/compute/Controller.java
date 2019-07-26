@@ -43,9 +43,7 @@ import spark.Response;
  * @author alexmy
  */
 public class Controller {
-
     private static final String DEFAULT_TRANSPORT_URL = "redis://localhost";
-
     enum Status {
         SUCCESS(200),
         ERROR(400);
@@ -60,14 +58,20 @@ public class Controller {
         }
     }
 
+    /**
+     * 
+     * @param req
+     * @param res
+     * @return
+     * @throws ValidationException
+     * @throws ProcessingException 
+     */
     public static String process(Request req, Response res) throws ValidationException, ProcessingException {
         String requestJson = req.body();
         String result = null;
-
         res.type("application/json;charset=utf8");
         res.header("content-type", "application/json;charset=utf8");
         res.raw();
-
         if (!ServiceUtils.validateInput(requestJson)) {
             res.status(Status.ERROR.getStatusCode());
         } else {
@@ -105,11 +109,16 @@ public class Controller {
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
                 Exceptions.printStackTrace(ex);
             }
-
         }
         return result;
     }
     
+    /**
+     * 
+     * @param source
+     * @param transportUrl
+     * @return 
+     */
     private static Map<String, String> sourceResponse(ExternalSource source, String transportUrl){
         Map<String, String> map = new HashMap<>();
         map.put("transportUrl", transportUrl);

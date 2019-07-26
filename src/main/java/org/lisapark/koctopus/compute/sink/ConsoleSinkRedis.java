@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2013 Lisa Park, Inc. (www.lisa-park.net)
+ * Copyright (C) 2019 Lisa Park, Inc. (www.lisa-park.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 
 /**
- * @author dave sinclair(david.sinclair@lisa-park.com)
+ * @author alexmy
  */
 @Persistable
 public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
@@ -53,7 +53,6 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
 
     private static final int ATTRIBUTE_LIST_PARAMETER_ID = 1;
     private static final int PAGE_SIZE_PARAMETER_ID = 2;
-    private static final int OFFSET_PARAMETER_ID = 3;
     private static final String ATTRIBUTE_LIST = "Show Attributes";
     private static final String ATTRIBUTE_LIST_DESCRIPTION
             = "List comma separated attribute names that you would like to show on Console. Empty - will show all attributes.";
@@ -62,10 +61,6 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     private static final String PAGE_SIZE_DESCRIPTION
             = "Page size description goes here.";
     
-    private static final String OFFSET = "Offset";
-    private static final String OFFSET_DESCRIPTION
-            = "Offset description goes here.";
-
     private final Input<Event> input;
     
     protected Map<String, StreamReference> sourcerefs = new HashMap<>();
@@ -112,15 +107,6 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
         return getParameter(PAGE_SIZE_PARAMETER_ID).getValueAsInteger();
     }
     
-    @SuppressWarnings("unchecked")
-    public void setOffset(Integer offset) throws ValidationException {
-        getParameter(OFFSET_PARAMETER_ID).setValue(offset);
-    }
-
-    public Integer getOffset() {
-        return getParameter(OFFSET_PARAMETER_ID).getValueAsInteger();
-    }
-
     public Input<Event> getInput() {
         return input;
     }
@@ -168,20 +154,13 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
 
     public static ConsoleSinkRedis newTemplate(UUID sinkId) {
         ConsoleSinkRedis consoleSink = new ConsoleSinkRedis(sinkId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
-
         consoleSink.addParameter(
                 Parameter.stringParameterWithIdAndName(ATTRIBUTE_LIST_PARAMETER_ID, ATTRIBUTE_LIST)
                         .description(ATTRIBUTE_LIST_DESCRIPTION)
-        );
-        
+        );        
         consoleSink.addParameter(
                 Parameter.integerParameterWithIdAndName(PAGE_SIZE_PARAMETER_ID, PAGE_SIZE)
                         .description(PAGE_SIZE_DESCRIPTION).defaultValue(100)
-        );
-        
-        consoleSink.addParameter(
-                Parameter.integerParameterWithIdAndName(OFFSET_PARAMETER_ID, OFFSET)
-                        .description(OFFSET_DESCRIPTION).defaultValue(0)
         );
         return consoleSink;
     }
@@ -207,9 +186,7 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     }
 
     static class CompiledConsole extends CompiledExternalSink {
-
         private final ConsoleSinkRedis sink;
-
         /**
          *
          * @param processor
@@ -226,16 +203,15 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
          */
         @Override
         public synchronized void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId) {
-
             String inputName = sink.getInput().getName();
             String sourceClassName = sink.getReferences().get(inputName).getReferenceClass();
             String sourceId = sink.getReferences().get(inputName).getReferenceId();
-
             int pageSize = sink.getPageSize();
-            int offset = sink.getOffset();
+            String offset = "0";
             while (true) {
-                List<StreamMessage<String, String>> list = runtime.readFromStream(sourceClassName, UUID.fromString(sourceId), String.valueOf(offset), pageSize);
-
+                List<StreamMessage<String, String>> list;
+               
+                list = runtime.readFromStream(sourceClassName, UUID.fromString(sourceId), offset, pageSize);
                 if (list.size() > 0) { // a message was read                    
                     list.forEach(msg -> {
                         if (msg != null) {
@@ -244,8 +220,7 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
                             runtime.getStandardOut().println("event is null");
                         }
                     });
-                    offset = offset + list.size();
-                    break;
+                    offset = list.get(list.size() - 1).getId();
                 } else {
                     break;
                 }
@@ -258,9 +233,7 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
          * @param eventsByInputId
          */
         @Override
-        public void processEvent(SinkContext ctx, Map<Integer, Event> eventsByInputId) {
-
-        }
+        public void processEvent(SinkContext ctx, Map<Integer, Event> eventsByInputId) {}
     }
 
     /**
