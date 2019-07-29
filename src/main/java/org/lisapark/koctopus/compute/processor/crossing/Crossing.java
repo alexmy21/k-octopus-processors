@@ -38,6 +38,8 @@ import org.lisapark.koctopus.core.processor.CompiledProcessor;
 import org.lisapark.koctopus.core.processor.Processor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.util.Pair;
 
 /**
@@ -158,6 +160,21 @@ public class Crossing extends Processor<Pair> {
         return cross;
     }
 
+    @Override
+    public <T extends Processor> CompiledProcessor<Pair> compile(T processor) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Map<String, StreamReference> getReferences() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setReferences(Map<String, StreamReference> sourceref) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     static class CompiledCrossing extends CompiledProcessor<Pair> {
         private final String firstAttributeName;
         private final String secondAttributeName;
@@ -211,6 +228,11 @@ public class Crossing extends Processor<Pair> {
             }            
             
             return retValue;
+        }
+
+        @Override
+        public void processEvent(StreamProcessingRuntime runtime) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }
 }

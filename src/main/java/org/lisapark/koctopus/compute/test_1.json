@@ -1,42 +1,42 @@
 {
-    "id": "25bdbdb4-c346-4357-bb21-8184881429df",
+    "id": "ebd0720d-556e-4047-8bc8-c7a25f2ce439",
     "type": "PROCESSING_GRAPH",
     "label": "Test",
     "params": "{\"TRANSPORT_URL\":[\"redis://localhost\"]}",
     "directed": true,
     "nodes": [{
-            "id": "535aaf83-da25-49cc-87a1-dd0a64c9c764",
+            "id": "13bee727-7786-4553-989a-9077519b9278",
             "type": "org.lisapark.koctopus.compute.source.TestSourceRedis",
             "label": "SOURCE",
             "transportUrl": "redis://localhost",
-            "params": "{\"1\":[{\"first\":\"TYPE\",\"second\":\"java.lang.Integer\"},{\"first\":\"NAME\",\"second\":\"Number of Events\"},{\"first\":\"VALUE\",\"second\":\"10\"}],\"2\":[{\"first\":\"NAME\",\"second\":\"Redis URL\"},{\"first\":\"VALUE\",\"second\":\"redis://localhost\"},{\"first\":\"TYPE\",\"second\":\"java.lang.String\"}]}",
+            "params": "{\"1\":[{\"first\":\"VALUE\",\"second\":\"100\"},{\"first\":\"TYPE\",\"second\":\"java.lang.Integer\"},{\"first\":\"NAME\",\"second\":\"Number of Events\"}],\"2\":[{\"first\":\"NAME\",\"second\":\"Redis URL\"},{\"first\":\"VALUE\",\"second\":\"redis://localhost\"},{\"first\":\"TYPE\",\"second\":\"java.lang.String\"}]}",
             "output": "{\"Att\":[{\"first\":\"TYPE\",\"second\":\"java.lang.Integer\"}]}"
         }, {
-            "id": "f0b900a9-6c57-4abb-8345-e27cf0b6de32",
+            "id": "6b0c37bc-e249-4152-8497-bf273596529f",
             "type": "org.lisapark.koctopus.compute.processor.sma.Sma",
             "label": "PROCESSOR",
             "transportUrl": "redis://localhost",
             "params": "{\"1\":[{\"first\":\"NAME\",\"second\":\"Time window\"},{\"first\":\"TYPE\",\"second\":\"java.lang.Integer\"},{\"first\":\"VALUE\",\"second\":\"10\"}]}",
-            "input": "{\"Input\":[{\"first\":\"TYPE\",\"second\":\"java.lang.Integer\"},{\"first\":\"NAME\",\"second\":\"Att\"},{\"first\":\"SOURCE_ID\",\"second\":\"535aaf83-da25-49cc-87a1-dd0a64c9c764\"},{\"first\":\"SOURCE_CLASS\",\"second\":\"org.lisapark.koctopus.compute.source.TestSourceRedis\"}]}",
+            "input": "{\"Input\":[{\"first\":\"TYPE\",\"second\":\"java.lang.Integer\"},{\"first\":\"SOURCE_ID\",\"second\":\"13bee727-7786-4553-989a-9077519b9278\"},{\"first\":\"NAME\",\"second\":\"Att\"},{\"first\":\"SOURCE_CLASS\",\"second\":\"org.lisapark.koctopus.compute.source.TestSourceRedis\"}]}",
             "output": "{\"average\":[{\"first\":\"TYPE\",\"second\":\"java.lang.Double\"}]}"
         }, {
-            "id": "648505a3-878e-4c5f-9303-56afecdd7fd4",
+            "id": "4232ac62-00b1-442b-9585-1e44a91d2280",
             "type": "org.lisapark.koctopus.compute.sink.ConsoleSinkRedis",
             "label": "SINK",
             "transportUrl": "redis://localhost",
-            "params": "{\"1\":[{\"first\":\"NAME\",\"second\":\"Show Attributes\"},{\"first\":\"VALUE\"},{\"first\":\"TYPE\",\"second\":\"java.lang.String\"}],\"2\":[{\"first\":\"VALUE\",\"second\":\"100\"},{\"first\":\"TYPE\",\"second\":\"java.lang.Integer\"},{\"first\":\"NAME\",\"second\":\"Page size\"}],\"3\":[{\"first\":\"VALUE\",\"second\":\"0\"},{\"first\":\"TYPE\",\"second\":\"java.lang.Integer\"},{\"first\":\"NAME\",\"second\":\"Offset\"}]}",
-            "input": "{\"Input\":[{\"first\":\"SOURCE_ID\",\"second\":\"f0b900a9-6c57-4abb-8345-e27cf0b6de32\"},{\"first\":\"NAME\",\"second\":\"average\"},{\"first\":\"TYPE\",\"second\":\"java.lang.Double\"},{\"first\":\"SOURCE_CLASS\",\"second\":\"org.lisapark.koctopus.compute.processor.sma.Sma\"}]}"
+            "params": "{\"0\":[{\"first\":\"NAME\",\"second\":\"Redis URL\"},{\"first\":\"VALUE\",\"second\":\"redis://localhost\"},{\"first\":\"TYPE\",\"second\":\"java.lang.String\"}],\"1\":[{\"first\":\"NAME\",\"second\":\"Show Attributes\"},{\"first\":\"VALUE\"},{\"first\":\"TYPE\",\"second\":\"java.lang.String\"}],\"2\":[{\"first\":\"VALUE\",\"second\":\"100\"},{\"first\":\"TYPE\",\"second\":\"java.lang.Integer\"},{\"first\":\"NAME\",\"second\":\"Page size\"}]}",
+            "input": "{\"Input\":[{\"first\":\"SOURCE_ID\",\"second\":\"6b0c37bc-e249-4152-8497-bf273596529f\"},{\"first\":\"NAME\",\"second\":\"average\"},{\"first\":\"TYPE\",\"second\":\"java.lang.Double\"},{\"first\":\"SOURCE_CLASS\",\"second\":\"org.lisapark.koctopus.compute.processor.sma.Sma\"}]}"
         }],
     "edges": [{
-            "source": "org.lisapark.koctopus.compute.source.TestSourceRedis:535aaf83-da25-49cc-87a1-dd0a64c9c764",
+            "source": "org.lisapark.koctopus.compute.source.TestSourceRedis:13bee727-7786-4553-989a-9077519b9278",
             "relation": "Input",
-            "target": "org.lisapark.koctopus.compute.processor.sma.Sma:f0b900a9-6c57-4abb-8345-e27cf0b6de32",
+            "target": "org.lisapark.koctopus.compute.processor.sma.Sma:6b0c37bc-e249-4152-8497-bf273596529f",
             "directed": true,
             "label": "MODEL"
         }, {
-            "source": "org.lisapark.koctopus.compute.processor.sma.Sma:f0b900a9-6c57-4abb-8345-e27cf0b6de32",
+            "source": "org.lisapark.koctopus.compute.processor.sma.Sma:6b0c37bc-e249-4152-8497-bf273596529f",
             "relation": "Input",
-            "target": "org.lisapark.koctopus.compute.sink.ConsoleSinkRedis:648505a3-878e-4c5f-9303-56afecdd7fd4",
+            "target": "org.lisapark.koctopus.compute.sink.ConsoleSinkRedis:4232ac62-00b1-442b-9585-1e44a91d2280",
             "directed": true,
             "label": "MODEL"
         }]

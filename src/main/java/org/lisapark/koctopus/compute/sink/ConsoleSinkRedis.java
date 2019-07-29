@@ -51,6 +51,7 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     private static final String DEFAULT_DESCRIPTION = "Console Output from Redis";
     private static final String DEFAULT_INPUT = "Input";
 
+    private static final int TRANSPORT_PARAMETER_ID = 0;
     private static final int ATTRIBUTE_LIST_PARAMETER_ID = 1;
     private static final int PAGE_SIZE_PARAMETER_ID = 2;
     private static final String ATTRIBUTE_LIST = "Show Attributes";
@@ -137,9 +138,9 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     @Override
     public ConsoleSinkRedis newInstance(Gnode gnode) {
         String uuid = gnode.getId() == null ? UUID.randomUUID().toString() : gnode.getId();
-        ConsoleSinkRedis testSource = newTemplate(UUID.fromString(uuid));
-        GraphUtils.buildSink(testSource, gnode);
-        return testSource;
+        ConsoleSinkRedis sink = newTemplate(UUID.fromString(uuid));
+        GraphUtils.buildSink(sink, gnode);
+        return sink;
     }
 
     @Override
@@ -154,6 +155,11 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
 
     public static ConsoleSinkRedis newTemplate(UUID sinkId) {
         ConsoleSinkRedis consoleSink = new ConsoleSinkRedis(sinkId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+        consoleSink.addParameter(
+                Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Redis URL").
+                        description("Redis URL.").
+                        defaultValue("redis://localhost"));
+        
         consoleSink.addParameter(
                 Parameter.stringParameterWithIdAndName(ATTRIBUTE_LIST_PARAMETER_ID, ATTRIBUTE_LIST)
                         .description(ATTRIBUTE_LIST_DESCRIPTION)
@@ -209,9 +215,8 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
             int pageSize = sink.getPageSize();
             String offset = "0";
             while (true) {
-                List<StreamMessage<String, String>> list;
-               
-                list = runtime.readFromStream(sourceClassName, UUID.fromString(sourceId), offset, pageSize);
+                List<StreamMessage<String, String>> list;               
+                list = runtime.readEvents(sourceClassName, UUID.fromString(sourceId), offset, pageSize);
                 if (list.size() > 0) { // a message was read                    
                     list.forEach(msg -> {
                         if (msg != null) {

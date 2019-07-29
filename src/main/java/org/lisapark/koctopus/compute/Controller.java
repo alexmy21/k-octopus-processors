@@ -31,6 +31,7 @@ import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.NodeVocabulary;
 import org.lisapark.koctopus.core.graph.Vocabulary;
 import org.lisapark.koctopus.core.parameter.Parameter;
+import org.lisapark.koctopus.core.processor.Processor;
 import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
@@ -92,6 +93,11 @@ public class Controller {
 
                         break;
                     case Vocabulary.PROCESSOR:
+                        type = gnode.getType();
+                        Processor processorIns = (Processor) Class.forName(type).newInstance();
+                        Processor processor = (Processor) processorIns.newInstance(gnode);
+                        result = new Gson().toJson(processorResponse(processor, transportUrl));
+                        processor.compile(processor).processEvent(runtime);
 
                         break;
                     case Vocabulary.SINK:
@@ -133,6 +139,15 @@ public class Controller {
         map.put("transportUrl", transportUrl);
         map.put("className", sink.getClass().getCanonicalName());
         map.put("Id", sink.getId().toString());
+        
+        return map;
+    }
+    
+    private static Map<String, String> processorResponse(Processor processor, String transportUrl){
+        Map<String, String> map = new HashMap<>();
+        map.put("transportUrl", transportUrl);
+        map.put("className", processor.getClass().getCanonicalName());
+        map.put("Id", processor.getId().toString());
         
         return map;
     }

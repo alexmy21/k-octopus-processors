@@ -16,11 +16,7 @@
  */
 package org.lisapark.koctopus.compute.source;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.gson.Gson;
-import java.util.Collection;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.Persistable;
 import org.lisapark.koctopus.core.ValidationException;
@@ -33,17 +29,13 @@ import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.UUID;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
-import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.lisapark.koctopus.util.Pair;
 import org.openide.util.Exceptions;
 
 /**
@@ -117,7 +109,7 @@ public class TestSourceRedis extends ExternalSource {
         testSource.addParameter(
                 Parameter.integerParameterWithIdAndName(NUMBER_OF_EVENTS_PARAMETER_ID, "Number of Events").
                         description("Number of test events to generate.").
-                        defaultValue(10).
+                        defaultValue(100).
                         constraint(Constraints.integerConstraintWithMinimumAndMessage(1,
                                 "Number of events has to be greater than zero.")));
         testSource.addParameter(
@@ -173,7 +165,7 @@ public class TestSourceRedis extends ExternalSource {
             while (!thread.isInterrupted() && running && numberEventsCreated < source.getNumberOfEvents()) {
                 Event e = createEvent(attributes, numberEventsCreated++);
                 
-                runtime.sendEventFromSource(e, source.getClass().getCanonicalName(), source.getId());
+                runtime.writeEvents(e.getData(), source.getClass().getCanonicalName(), source.getId());
                 
                 try {
                     Thread.sleep(SLIEEP_TIME);

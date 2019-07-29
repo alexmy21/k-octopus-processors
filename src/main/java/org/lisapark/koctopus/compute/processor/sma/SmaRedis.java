@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.processor.sma;
 
+import io.lettuce.core.StreamMessage;
 import org.lisapark.koctopus.ProgrammerException;
 import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.Output;
@@ -29,9 +30,14 @@ import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.ProcessorContext;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.lisapark.koctopus.core.event.EventType;
 import org.lisapark.koctopus.core.graph.Gnode;
+import org.lisapark.koctopus.core.graph.GraphUtils;
+import org.lisapark.koctopus.core.memory.heap.HeapCircularBuffer;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
 import org.lisapark.koctopus.core.processor.Processor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
@@ -51,11 +57,11 @@ import org.lisapark.koctopus.core.runtime.redis.StreamReference;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class Sma extends Processor<Double> {
+public class SmaRedis extends Processor<Double> {
     
-    private static final String DEFAULT_NAME = "SMA";
-    private static final String DEFAULT_DESCRIPTION = "Simple Moving Average";
-    private static final String DEFAULT_WINDOW_LENGTH_DESCRIPTION = "Number of data points to consider when performing the average.";
+    private static final String DEFAULT_NAME = "SMA Redis";
+    private static final String DEFAULT_DESCRIPTION = "Simple Moving Average from Redis.";
+    private static final String DEFAULT_WINDOW_LENGTH_DESCRIPTION = "Number of data points to consider when calculating the average.";
     private static final String DEFAULT_INPUT_DESCRIPTION = "This is the attribute from the connected source that the" +
             " SMA will be averaging.";
     private static final String DEFAULT_OUTPUT_DESCRIPTION = "This is the name of the output attribute that the" +
@@ -65,23 +71,30 @@ public class Sma extends Processor<Double> {
      * Sma takes only one parameter, the size of time window. This is the identifier of the
      * parameter.
      */
-    private static final int WINDOW_LENGTH_PARAMETER_ID = 1;
+    private static final int WINDOW_LENGTH_PARAMETER_ID = 2;
+    private static final int TRANSPORT_PARAMETER_ID = 1;
 
     /**
      * Sma takes a single input
      */
     private static final int INPUT_ID = 1;
     private static final int OUTPUT_ID = 1;
+    
+    protected Map<String, StreamReference> procrefs = new HashMap<>();
 
-    protected Sma(UUID id, String name, String description) {
+    public SmaRedis(){
+        super(UUID.randomUUID(), DEFAULT_NAME, DEFAULT_INPUT_DESCRIPTION);
+    }
+    
+    protected SmaRedis(UUID id, String name, String description) {
         super(id, name, description);
     }
 
-    protected Sma(UUID id, Sma copyFromSma) {
+    protected SmaRedis(UUID id, SmaRedis copyFromSma) {
         super(id, copyFromSma);
     }
 
-    protected Sma(Sma copyFromSma) {
+    protected SmaRedis(SmaRedis copyFromSma) {
         super(copyFromSma);
     }
 
@@ -100,19 +113,22 @@ public class Sma extends Processor<Double> {
     }
 
     @Override
-    public Sma newInstance() {
-        return new Sma(UUID.randomUUID(), this);
+    public SmaRedis copyOf() {
+        return new SmaRedis(this);
     }
 
     @Override
-    public Sma newInstance(Gnode gnode) {
-        throw new UnsupportedOperationException("Not supported yet."); 
-//To change body of generated methods, choose Tools | Templates.
+    public SmaRedis newInstance() {
+        return new SmaRedis(UUID.randomUUID(), this);
     }
 
     @Override
-    public Sma copyOf() {
-        return new Sma(this);
+    public SmaRedis newInstance(Gnode gnode) {
+        String uuid = gnode.getId() == null ? UUID.randomUUID().toString() : gnode.getId();
+        SmaRedis smaRedis = newTemplate(UUID.fromString(uuid));
+        GraphUtils.buildProcessor(smaRedis, gnode);
+        
+        return smaRedis;
     }
 
     /**
@@ -121,9 +137,13 @@ public class Sma extends Processor<Double> {
      *
      * @return new {@link Sma}
      */
-    public static Sma newTemplate() {
-        UUID processorId = UUID.randomUUID();
-        Sma sma = new Sma(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+    public static SmaRedis newTemplate() {
+        UUID uuid = UUID.randomUUID();        
+        return newTemplate(uuid);
+    }
+    
+    public static SmaRedis newTemplate(UUID uuid){
+        SmaRedis sma = new SmaRedis(uuid, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         // sma only has window length paramater
         sma.addParameter(
                 Parameter.integerParameterWithIdAndName(WINDOW_LENGTH_PARAMETER_ID, "Time window").
@@ -131,6 +151,12 @@ public class Sma extends Processor<Double> {
                         defaultValue(10).required(true).
                         constraint(Constraints.integerConstraintWithMinimumAndMessage(1, "Time window should be greater than 1."))
         );
+        
+        sma.addParameter(
+                Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Redis URL").
+                        description("Redis URL.").
+                        defaultValue("redis://localhost"));
+        
         // only a single double input
         sma.addInput(
                 ProcessorInput.doubleInputWithId(INPUT_ID).name("Input").description(DEFAULT_INPUT_DESCRIPTION)
@@ -170,23 +196,23 @@ public class Sma extends Processor<Double> {
     public CompiledProcessor<Double> compile() throws ValidationException {
         validate();
         // we copy all the inputs and output taking a "snapshot" of this processor so we are isolated of changes
-        Sma copy = copyOf();
+        SmaRedis copy = copyOf();
         return new CompiledSma(copy);
     }
 
     @Override
     public <T extends Processor> CompiledProcessor<Double> compile(T processor) throws ValidationException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new CompiledSma((SmaRedis)processor);
     }
 
     @Override
     public Map<String, StreamReference> getReferences() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return procrefs;
     }
 
     @Override
-    public void setReferences(Map<String, StreamReference> sourceref) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setReferences(Map<String, StreamReference> procrefs) {
+        this.procrefs = procrefs;
     }
 
     /**
@@ -195,34 +221,91 @@ public class Sma extends Processor<Double> {
     static class CompiledSma extends CompiledProcessor<Double> {
         private final String inputAttributeName;
 
-        protected CompiledSma(Sma sma) {
+        private final SmaRedis sma;
+        
+        protected CompiledSma(SmaRedis sma) {
             super(sma);
+            this.sma = sma;
             this.inputAttributeName = sma.getInput().getSourceAttributeName();
         }
 
         @Override
-        public Object processEvent(ProcessorContext<Double> ctx, Map<Integer, Event> eventsByInputId) {
-            // sma only has a single event
-            Event event = eventsByInputId.get(INPUT_ID);
-            Double newItem = event.getAttributeAsDouble(inputAttributeName);
-            if (newItem == null) {
-                newItem = 0D;
-            }
-            Memory<Double> processorMemory = ctx.getProcessorMemory();
-            processorMemory.add(newItem);
-            double total = 0;
-            long numberItems = 0;
-            final Collection<Double> memoryItems = processorMemory.values();
-            for (Double memoryItem : memoryItems) {
-                total += memoryItem;
-                numberItems++;
-            }
-            return total / numberItems;
+        public void processEvent(StreamProcessingRuntime runtime) {
+            String inputName = sma.getInputs().get(0).getName();
+            String outAttName = sma.getOutputAttributeName();
+            String sourceClassName = sma.getReferences().get(inputName).getReferenceClass();
+            String sourceId = sma.getReferences().get(inputName).getReferenceId();
+            
+            EventType event = sma.getReferences().get(inputName).getEventType();
+            String inputAttName = event.getAttributeAt(0).getName();
+            
+            Double newItem = 0D;
+            HeapCircularBuffer<Double> processorMemory = new HeapCircularBuffer<>(sma.getWindowLength());
+            
+            runtime.start();
+            String offset = "0";
+            while (true) {
+                // Read messagesfrom the Redis stream
+                List<StreamMessage<String, String>> list;               
+                list = runtime.readEvents(sourceClassName, UUID.fromString(sourceId), offset);
+                if (list.size() > 0) { // a message was read                    
+                    list.forEach(msg -> {
+                        if (msg != null) {
+                            String value = msg.getBody().get(inputAttName);
+                            Double valueDouble = Double.valueOf(value);
+                            processorMemory.add(valueDouble);
+                            double total = 0;
+                            long numberItems = 0;
+                            final Collection<Double> memoryItems = processorMemory.values();
+                            for (Double memoryItem : memoryItems) {
+                                total += memoryItem;
+                                numberItems++;
+                            }
+                            runtime.getStandardOut().println(msg);
+                            // Write calculated sma to the output strim
+                            Map<String, String> e = new HashMap<>();
+                            Double res = total/numberItems;
+                            e.put(outAttName, String.valueOf(res));
+                            runtime.writeEvents(e, sma.getClass().getCanonicalName(), sma.getId());
+                        } else {
+                            runtime.getStandardOut().println("event is null");
+                        }
+                    });
+                    offset = list.get(list.size() - 1).getId();
+                } else {
+                    runtime.shutdown();
+                    break;
+                }
+            }            
+        
+            
+            
+                        
+            
+            
+//            
+//            // sma only has a single event
+//            Event event = eventsByInputId.get(INPUT_ID);
+//            Double newItem = event.getAttributeAsDouble(inputAttributeName);
+//            if (newItem == null) {
+//                newItem = 0D;
+//            }
+//            Memory<Double> processorMemory = ctx.getProcessorMemory();
+//            processorMemory.add(newItem);
+//            double total = 0;
+//            long numberItems = 0;
+//            final Collection<Double> memoryItems = processorMemory.values();
+//            for (Double memoryItem : memoryItems) {
+//                total += memoryItem;
+//                numberItems++;
+//            }
+//            return total / numberItems;
         }
 
         @Override
-        public void processEvent(StreamProcessingRuntime runtime) {
+        public Object processEvent(ProcessorContext<Double> ctx, Map<Integer, Event> eventsByInputId) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
+       
     }
 }

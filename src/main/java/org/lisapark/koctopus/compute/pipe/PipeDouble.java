@@ -30,6 +30,8 @@ import org.lisapark.koctopus.core.processor.Processor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.ProcessorContext;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 
 /**
  * This {@link Processor} is used for transferring Double value from one processor to another.
@@ -86,10 +88,11 @@ public class PipeDouble extends Processor<Double> {
     }
 
     /**
-     * Validates and compile this Pipe. Doing so takes a "snapshot" of the {@link #getInputs()} and {@link #output}
+     * Validates and compile this Pipe.Doing so takes a "snapshot" of the {@link #getInputs()} and {@link #output}
      * and returns a {@link CompiledProcessor}.
      *
      * @return CompiledProcessor
+     * @throws org.lisapark.koctopus.core.ValidationException
      */
     @Override
     public CompiledProcessor<Double> compile() throws ValidationException {
@@ -127,6 +130,21 @@ public class PipeDouble extends Processor<Double> {
         return sma;
     }
 
+    @Override
+    public <T extends Processor> CompiledProcessor<Double> compile(T processor) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Map<String, StreamReference> getReferences() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setReferences(Map<String, StreamReference> sourceref) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     /**
      * This {@link CompiledProcessor} is the actual logic that implements the Simple Moving Average.
      */
@@ -154,6 +172,11 @@ public class PipeDouble extends Processor<Double> {
             }
             
             return newItem;
+        }
+
+        @Override
+        public void processEvent(StreamProcessingRuntime runtime) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }
 }

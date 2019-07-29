@@ -38,6 +38,8 @@ import org.lisapark.koctopus.core.processor.CompiledProcessor;
 import org.lisapark.koctopus.core.processor.Processor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.util.Pair;
 
 /**
@@ -156,6 +158,21 @@ public class CrossAbove extends Processor<Pair> {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public <T extends Processor> CompiledProcessor<Pair> compile(T processor) throws ValidationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Map<String, StreamReference> getReferences() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setReferences(Map<String, StreamReference> sourceref) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     static class CompiledCrossAbove extends CompiledProcessor<Pair> {
         private final String firstAttributeName;
         private final String secondAttributeName;
@@ -207,6 +224,11 @@ public class CrossAbove extends Processor<Pair> {
             }            
             
             return retValue > 0 ? Boolean.TRUE : Boolean.FALSE;
+        }
+
+        @Override
+        public void processEvent(StreamProcessingRuntime runtime) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }
 }
