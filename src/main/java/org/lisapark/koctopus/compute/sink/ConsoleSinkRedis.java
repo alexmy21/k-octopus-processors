@@ -36,6 +36,7 @@ import java.util.UUID;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.parameter.Parameter;
+import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
@@ -61,6 +62,8 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     private static final String PAGE_SIZE = "Page size";
     private static final String PAGE_SIZE_DESCRIPTION
             = "Page size description goes here.";
+    
+    private static final int INPUT_ID = 0;
     
     private final Input<Event> input;
     
@@ -107,14 +110,14 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     public Integer getPageSize() {
         return getParameter(PAGE_SIZE_PARAMETER_ID).getValueAsInteger();
     }
-    
-    public Input<Event> getInput() {
-        return input;
-    }
-
+ 
     @Override
-    public List<Input<Event>> getInputs() {
+    public List<? extends Input> getInputs() {
         return ImmutableList.of(input);
+    }
+   
+    public Input getInput() {
+        return input;
     }
 
     @Override
@@ -168,6 +171,7 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
                 Parameter.integerParameterWithIdAndName(PAGE_SIZE_PARAMETER_ID, PAGE_SIZE)
                         .description(PAGE_SIZE_DESCRIPTION).defaultValue(100)
         );
+     
         return consoleSink;
     }
 
@@ -195,11 +199,11 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
         private final ConsoleSinkRedis sink;
         /**
          *
-         * @param processor
+         * @param sink
          */
-        protected CompiledConsole(ConsoleSinkRedis processor) {
-            super(processor);
-            this.sink = processor;
+        protected CompiledConsole(ConsoleSinkRedis sink) {
+            super(sink);
+            this.sink = sink;
         }
 
         /**

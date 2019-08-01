@@ -33,7 +33,7 @@ import org.lisapark.koctopus.core.memory.MemoryProvider;
 import org.lisapark.koctopus.core.parameter.Constraints;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.ProcessorContext;
@@ -48,7 +48,7 @@ import org.lisapark.koctopus.core.runtime.redis.StreamReference;
  * packed in JSON and can be used to evaluate forecast.
  *
  */
-public class ForecastSRM extends Processor<Double> {
+public class ForecastSRM extends AbstractProcessor<Double> {
 
     private final static java.util.logging.Logger LOGGER
             = java.util.logging.Logger.getLogger(ForecastSRM.class.getName());
@@ -271,7 +271,7 @@ public class ForecastSRM extends Processor<Double> {
     }
 
     @Override
-    public <T extends Processor> CompiledProcessor<Double> compile(T processor) throws ValidationException {
+    public <T extends AbstractProcessor> CompiledProcessor<Double> compile(T processor) throws ValidationException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

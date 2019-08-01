@@ -34,42 +34,45 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.lisapark.koctopus.core.event.EventType;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.GraphUtils;
+import org.lisapark.koctopus.core.graph.NodeAttribute;
 import org.lisapark.koctopus.core.memory.heap.HeapCircularBuffer;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 
 /**
- * This {@link Processor} is used for computing a Simple Moving Average on a single input and producing an average
- * as the output. A simple moving average is formed by computing the average price of a number over a specific
+ * This {@link AbstractProcessor} is used for computing a Simple Moving Average
+ * on a single input and producing an average as the output. A simple moving
+ * average is formed by computing the average price of a number over a specific
  * number of periods.
- * 
- * For example, most moving averages are based on closing prices. A 5-day simple moving average is the five
- * day sum of closing prices divided by five. As its name implies, a moving average is an average that moves.
- * Old data is dropped as new data comes available. This causes the average to move along the time scale.
+ *
+ * For example, most moving averages are based on closing prices. A 5-day simple
+ * moving average is the five day sum of closing prices divided by five. As its
+ * name implies, a moving average is an average that moves. Old data is dropped
+ * as new data comes available. This causes the average to move along the time
+ * scale.
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class SmaRedis extends Processor<Double> {
-    
+public class SmaRedis extends AbstractProcessor<Double> {
+
     private static final String DEFAULT_NAME = "SMA Redis";
     private static final String DEFAULT_DESCRIPTION = "Simple Moving Average from Redis.";
     private static final String DEFAULT_WINDOW_LENGTH_DESCRIPTION = "Number of data points to consider when calculating the average.";
-    private static final String DEFAULT_INPUT_DESCRIPTION = "This is the attribute from the connected source that the" +
-            " SMA will be averaging.";
-    private static final String DEFAULT_OUTPUT_DESCRIPTION = "This is the name of the output attribute that the" +
-            " SMA is producing.";
-   
+    private static final String DEFAULT_INPUT_DESCRIPTION = "This is the attribute from the connected source that the"
+            + " SMA will be averaging.";
+    private static final String DEFAULT_OUTPUT_DESCRIPTION = "This is the name of the output attribute that the"
+            + " SMA is producing.";
+
     /**
-     * Sma takes only one parameter, the size of time window. This is the identifier of the
-     * parameter.
+     * Sma takes only one parameter, the size of time window. This is the
+     * identifier of the parameter.
      */
     private static final int WINDOW_LENGTH_PARAMETER_ID = 2;
     private static final int TRANSPORT_PARAMETER_ID = 1;
@@ -79,13 +82,13 @@ public class SmaRedis extends Processor<Double> {
      */
     private static final int INPUT_ID = 1;
     private static final int OUTPUT_ID = 1;
-    
+
     protected Map<String, StreamReference> procrefs = new HashMap<>();
 
-    public SmaRedis(){
+    public SmaRedis() {
         super(UUID.randomUUID(), DEFAULT_NAME, DEFAULT_INPUT_DESCRIPTION);
     }
-    
+
     protected SmaRedis(UUID id, String name, String description) {
         super(id, name, description);
     }
@@ -127,22 +130,23 @@ public class SmaRedis extends Processor<Double> {
         String uuid = gnode.getId() == null ? UUID.randomUUID().toString() : gnode.getId();
         SmaRedis smaRedis = newTemplate(UUID.fromString(uuid));
         GraphUtils.buildProcessor(smaRedis, gnode);
-        
+
         return smaRedis;
     }
 
     /**
-     * Returns a new {@link Sma} processor configured with all the appropriate {@link org.lisapark.koctopus.core.parameter.Parameter}s, {@link Input}s
+     * Returns a new {@link Sma} processor configured with all the appropriate
+     * {@link org.lisapark.koctopus.core.parameter.Parameter}s, {@link Input}s
      * and {@link Output}.
      *
      * @return new {@link Sma}
      */
     public static SmaRedis newTemplate() {
-        UUID uuid = UUID.randomUUID();        
+        UUID uuid = UUID.randomUUID();
         return newTemplate(uuid);
     }
-    
-    public static SmaRedis newTemplate(UUID uuid){
+
+    public static SmaRedis newTemplate(UUID uuid) {
         SmaRedis sma = new SmaRedis(uuid, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         // sma only has window length paramater
         sma.addParameter(
@@ -151,12 +155,12 @@ public class SmaRedis extends Processor<Double> {
                         defaultValue(10).required(true).
                         constraint(Constraints.integerConstraintWithMinimumAndMessage(1, "Time window should be greater than 1."))
         );
-        
+
         sma.addParameter(
                 Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Redis URL").
                         description("Redis URL.").
                         defaultValue("redis://localhost"));
-        
+
         // only a single double input
         sma.addInput(
                 ProcessorInput.doubleInputWithId(INPUT_ID).name("Input").description(DEFAULT_INPUT_DESCRIPTION)
@@ -174,8 +178,9 @@ public class SmaRedis extends Processor<Double> {
     }
 
     /**
-     * {@link Sma}s need memory to store the prior events that will be used to calculate the average based on. We
-     * used a {@link MemoryProvider#createCircularBuffer(int)} to store this data.
+     * {@link Sma}s need memory to store the prior events that will be used to
+     * calculate the average based on. We used a
+     * {@link MemoryProvider#createCircularBuffer(int)} to store this data.
      *
      * @param memoryProvider used to create sma's memory
      * @return circular buffer
@@ -186,8 +191,9 @@ public class SmaRedis extends Processor<Double> {
     }
 
     /**
-     * Validates and compile this Sma.Doing so takes a "snapshot" of the {@link #getInputs()} and {@link #output}
-     * and returns a {@link CompiledProcessor}.
+     * Validates and compile this Sma.Doing so takes a "snapshot" of the
+     * {@link #getInputs()} and {@link #output} and returns a
+     * {@link CompiledProcessor}.
      *
      * @return CompiledProcessor
      * @throws org.lisapark.koctopus.core.ValidationException
@@ -201,8 +207,8 @@ public class SmaRedis extends Processor<Double> {
     }
 
     @Override
-    public <T extends Processor> CompiledProcessor<Double> compile(T processor) throws ValidationException {
-        return new CompiledSma((SmaRedis)processor);
+    public <T extends AbstractProcessor> CompiledProcessor<Double> compile(T processor) throws ValidationException {
+        return new CompiledSma((SmaRedis) processor);
     }
 
     @Override
@@ -216,13 +222,15 @@ public class SmaRedis extends Processor<Double> {
     }
 
     /**
-     * This {@link CompiledProcessor} is the actual logic that implements the Simple Moving Average.
+     * This {@link CompiledProcessor} is the actual logic that implements the
+     * Simple Moving Average.
      */
     static class CompiledSma extends CompiledProcessor<Double> {
+
         private final String inputAttributeName;
 
         private final SmaRedis sma;
-        
+
         protected CompiledSma(SmaRedis sma) {
             super(sma);
             this.sma = sma;
@@ -235,18 +243,23 @@ public class SmaRedis extends Processor<Double> {
             String outAttName = sma.getOutputAttributeName();
             String sourceClassName = sma.getReferences().get(inputName).getReferenceClass();
             String sourceId = sma.getReferences().get(inputName).getReferenceId();
-            
-            EventType event = sma.getReferences().get(inputName).getEventType();
-            String inputAttName = event.getAttributeAt(0).getName();
-            
+
+            Map<String, NodeAttribute> event = sma.getReferences().get(inputName).getAttributes();
+            String inputAttName;
+            if (event.size() == 1) {
+                inputAttName = event.keySet().iterator().next();
+            } else {
+                return;
+            }
+
             Double newItem = 0D;
             HeapCircularBuffer<Double> processorMemory = new HeapCircularBuffer<>(sma.getWindowLength());
-            
+
             runtime.start();
             String offset = "0";
             while (true) {
                 // Read messagesfrom the Redis stream
-                List<StreamMessage<String, String>> list;               
+                List<StreamMessage<String, String>> list;
                 list = runtime.readEvents(sourceClassName, UUID.fromString(sourceId), offset);
                 if (list.size() > 0) { // a message was read                    
                     list.forEach(msg -> {
@@ -264,7 +277,7 @@ public class SmaRedis extends Processor<Double> {
                             runtime.getStandardOut().println(msg);
                             // Write calculated sma to the output strim
                             Map<String, String> e = new HashMap<>();
-                            Double res = total/numberItems;
+                            Double res = total / numberItems;
                             e.put(outAttName, String.valueOf(res));
                             runtime.writeEvents(e, sma.getClass().getCanonicalName(), sma.getId());
                         } else {
@@ -276,36 +289,12 @@ public class SmaRedis extends Processor<Double> {
                     runtime.shutdown();
                     break;
                 }
-            }            
-        
-            
-            
-                        
-            
-            
-//            
-//            // sma only has a single event
-//            Event event = eventsByInputId.get(INPUT_ID);
-//            Double newItem = event.getAttributeAsDouble(inputAttributeName);
-//            if (newItem == null) {
-//                newItem = 0D;
-//            }
-//            Memory<Double> processorMemory = ctx.getProcessorMemory();
-//            processorMemory.add(newItem);
-//            double total = 0;
-//            long numberItems = 0;
-//            final Collection<Double> memoryItems = processorMemory.values();
-//            for (Double memoryItem : memoryItems) {
-//                total += memoryItem;
-//                numberItems++;
-//            }
-//            return total / numberItems;
+            }
         }
 
         @Override
         public Object processEvent(ProcessorContext<Double> ctx, Map<Integer, Event> eventsByInputId) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
-       
     }
 }

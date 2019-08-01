@@ -36,7 +36,7 @@ import org.lisapark.koctopus.core.event.Event;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.ProcessorContext;
@@ -48,7 +48,7 @@ import org.openide.util.Exceptions;
  *
  * @author Alex Mylnikov (alexmy@lisa-park.com)
  */
-public class RTCAcontroller extends Processor<Void> {
+public class RTCAcontroller extends AbstractProcessor<Void> {
 
     private static final String DEFAULT_NAME = "RTC Async Controller";
     private static final String DEFAULT_DESCRIPTION = "Run Time Asynch Container Controller"
@@ -176,7 +176,7 @@ public class RTCAcontroller extends Processor<Void> {
     }
 
     @Override
-    public <T extends Processor> CompiledProcessor<Void> compile(T processor) throws ValidationException {
+    public <T extends AbstractProcessor> CompiledProcessor<Void> compile(T processor) throws ValidationException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

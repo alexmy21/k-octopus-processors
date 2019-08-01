@@ -26,7 +26,7 @@ import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Event;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.ProcessorContext;
@@ -34,14 +34,14 @@ import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 
 /**
- * This {@link Processor} is used for transferring Double value from one processor to another.
+ * This {@link AbstractProcessor} is used for transferring Double value from one processor to another.
  * 
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  * @author Alex Mylnikov (alexmy@lisa-park.com) mylnikov(alexmy@lisa-park.com)
  */
 @Persistable
-public class PipeStringDouble extends Processor<String> {
+public class PipeStringDouble extends AbstractProcessor<String> {
     
     private static final String DEFAULT_NAME = "Connector String to Double";
     private static final String DEFAULT_DESCRIPTION = "Converts string from one processor to the double of another.";
@@ -131,7 +131,7 @@ public class PipeStringDouble extends Processor<String> {
     }
 
     @Override
-    public <T extends Processor> CompiledProcessor<String> compile(T processor) throws ValidationException {
+    public <T extends AbstractProcessor> CompiledProcessor<String> compile(T processor) throws ValidationException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

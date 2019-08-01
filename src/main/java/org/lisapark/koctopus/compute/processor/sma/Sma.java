@@ -33,14 +33,14 @@ import java.util.Map;
 import java.util.UUID;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 
 /**
- * This {@link Processor} is used for computing a Simple Moving Average on a single input and producing an average
+ * This {@link AbstractProcessor} is used for computing a Simple Moving Average on a single input and producing an average
  * as the output. A simple moving average is formed by computing the average price of a number over a specific
  * number of periods.
  * 
@@ -51,7 +51,7 @@ import org.lisapark.koctopus.core.runtime.redis.StreamReference;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class Sma extends Processor<Double> {
+public class Sma extends AbstractProcessor<Double> {
     
     private static final String DEFAULT_NAME = "SMA";
     private static final String DEFAULT_DESCRIPTION = "Simple Moving Average";
@@ -175,7 +175,7 @@ public class Sma extends Processor<Double> {
     }
 
     @Override
-    public <T extends Processor> CompiledProcessor<Double> compile(T processor) throws ValidationException {
+    public <T extends AbstractProcessor> CompiledProcessor<Double> compile(T processor) throws ValidationException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

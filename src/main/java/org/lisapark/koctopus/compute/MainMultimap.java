@@ -32,15 +32,15 @@ public class MainMultimap {
             map.put("two", new Pair("age", "43"));
             map.put("two", new Pair("Address", "Russia"));
             
-            Gson gson = GraphUtils.gsonGnodeMeta(map);
-
-            String jsonString = gson.toJson(map);
-            System.out.println(jsonString);
-
-            Multimap<String, Pair<String, String>> map2 = gson.fromJson(jsonString, GraphUtils.HASH_MULTIMAP_PAIR);
-            System.out.println(new Gson().toJson(map2.asMap(), Map.class));
-
-            System.out.println(gson.toJson(map2));
+//            Gson gson = GraphUtils.gsonGnodeMeta(map);
+//
+//            String jsonString = gson.toJson(map);
+//            System.out.println(jsonString);
+//
+//            Multimap<String, Pair<String, String>> map2 = gson.fromJson(jsonString, GraphUtils.HASH_MULTIMAP_PAIR);
+//            System.out.println(new Gson().toJson(map2.asMap(), Map.class));
+//
+//            System.out.println(gson.toJson(map2));
         } catch (JsonParseException ex) {
             Exceptions.printStackTrace(ex);
         }

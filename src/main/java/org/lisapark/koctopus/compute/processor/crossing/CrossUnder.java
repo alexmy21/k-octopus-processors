@@ -36,7 +36,7 @@ import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.memory.Memory;
 import org.lisapark.koctopus.core.memory.MemoryProvider;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
@@ -44,14 +44,14 @@ import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.util.Pair;
 
 /**
- * This {@link Processor} is used to determine if two SMAs are crossed.
+ * This {@link AbstractProcessor} is used to determine if two SMAs are crossed.
  *
  *
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class CrossUnder extends Processor<Pair> {
+public class CrossUnder extends AbstractProcessor<Pair> {
 
     private final static java.util.logging.Logger LOGGER
             = java.util.logging.Logger.getLogger(CrossUnder.class.getName());
@@ -160,7 +160,7 @@ public class CrossUnder extends Processor<Pair> {
     }
 
     @Override
-    public <T extends Processor> CompiledProcessor<Pair> compile(T processor) throws ValidationException {
+    public <T extends AbstractProcessor> CompiledProcessor<Pair> compile(T processor) throws ValidationException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -28,7 +28,7 @@ import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.memory.Memory;
 import org.lisapark.koctopus.core.memory.MemoryProvider;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.ProcessorContext;
@@ -39,7 +39,7 @@ import org.lisapark.koctopus.core.runtime.redis.StreamReference;
  *
  * @author Alex Mylnikov (alexmy@lisa-park.com) 
  */
-public class Pipe extends Processor<Integer> {
+public class Pipe extends AbstractProcessor<Integer> {
     private static final String DEFAULT_NAME = "Connector";
     private static final String DEFAULT_DESCRIPTION = "Transfere data from one processor to another and count number of transactions.";
     private static final String DEFAULT_INPUT_DESCRIPTION = "Field name";
@@ -139,7 +139,7 @@ public class Pipe extends Processor<Integer> {
     }
 
     @Override
-    public <T extends Processor> CompiledProcessor<Integer> compile(T processor) throws ValidationException {
+    public <T extends AbstractProcessor> CompiledProcessor<Integer> compile(T processor) throws ValidationException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

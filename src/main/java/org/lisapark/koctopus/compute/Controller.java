@@ -17,21 +17,13 @@
 package org.lisapark.koctopus.compute;
 
 import com.google.gson.Gson;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.graph.Gnode;
-import org.lisapark.koctopus.core.graph.NodeVocabulary;
-import org.lisapark.koctopus.core.graph.Vocabulary;
-import org.lisapark.koctopus.core.parameter.Parameter;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.graph.api.Vocabulary;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
@@ -44,7 +36,9 @@ import spark.Response;
  * @author alexmy
  */
 public class Controller {
+
     private static final String DEFAULT_TRANSPORT_URL = "redis://localhost";
+
     enum Status {
         SUCCESS(200),
         ERROR(400);
@@ -60,12 +54,12 @@ public class Controller {
     }
 
     /**
-     * 
+     *
      * @param req
      * @param res
      * @return
      * @throws ValidationException
-     * @throws ProcessingException 
+     * @throws ProcessingException
      */
     public static String process(Request req, Response res) throws ValidationException, ProcessingException {
         String requestJson = req.body();
@@ -81,22 +75,22 @@ public class Controller {
                 Gnode gnode = (Gnode) new Gnode().fromJson(requestJson);
                 String transportUrl = gnode.getTransportUrl() == null ? DEFAULT_TRANSPORT_URL : gnode.getTransportUrl();
                 RedisRuntime runtime = new RedisRuntime(transportUrl, System.out, System.err);
-                
+
                 String type;
                 switch (gnode.getLabel()) {
                     case Vocabulary.SOURCE:
-                        type = gnode.getType();                         
+                        type = gnode.getType();
                         ExternalSource sourceIns = (ExternalSource) Class.forName(type).newInstance();
                         ExternalSource source = (ExternalSource) sourceIns.newInstance(gnode);
-                        result = new Gson().toJson(sourceResponse(source, transportUrl));
+                        result = new Gson().toJson(sourceResponse(source, gnode, transportUrl));
                         source.compile(source).startProcessingEvents(runtime);
 
                         break;
                     case Vocabulary.PROCESSOR:
                         type = gnode.getType();
-                        Processor processorIns = (Processor) Class.forName(type).newInstance();
-                        Processor processor = (Processor) processorIns.newInstance(gnode);
-                        result = new Gson().toJson(processorResponse(processor, transportUrl));
+                        AbstractProcessor processorIns = (AbstractProcessor) Class.forName(type).newInstance();
+                        AbstractProcessor processor = (AbstractProcessor) processorIns.newInstance(gnode);
+                        result = new Gson().toJson(processorResponse(processor, gnode, transportUrl));
                         processor.compile(processor).processEvent(runtime);
 
                         break;
@@ -104,7 +98,7 @@ public class Controller {
                         type = gnode.getType();
                         ExternalSink sinkIns = (ExternalSink) Class.forName(type).newInstance();
                         ExternalSink sink = (ExternalSink) sinkIns.newInstance(gnode);
-                        result = new Gson().toJson(sinkResponse(sink, transportUrl));
+                        result = new Gson().toJson(sinkResponse(sink, gnode, transportUrl));
                         sink.compile(sink).processEvent(runtime, null);
 
                         break;
@@ -118,37 +112,52 @@ public class Controller {
         }
         return result;
     }
-    
+
     /**
-     * 
+     *
      * @param source
      * @param transportUrl
-     * @return 
+     * @return
      */
-    private static Map<String, String> sourceResponse(ExternalSource source, String transportUrl){
+    private static Map<String, String> sourceResponse(ExternalSource source, Gnode gnode, String transportUrl) {
         Map<String, String> map = new HashMap<>();
+        String attrsvalue = null;
+        if(gnode.getOutput() != null && gnode.getOutput().getAttributes() != null){
+            attrsvalue = gnode.getOutput().getAttributes().keySet().toString();
+        }
+        map.put("Atts", attrsvalue);
         map.put("transportUrl", transportUrl);
         map.put("className", source.getClass().getCanonicalName());
         map.put("Id", source.getId().toString());
-        
+
         return map;
     }
-    
-    private static Map<String, String> sinkResponse(ExternalSink sink, String transportUrl){
+
+    private static Map<String, String> sinkResponse(ExternalSink sink, Gnode gnode, String transportUrl) {
         Map<String, String> map = new HashMap<>();
+        String attrsvalue = null;
+        if(gnode.getOutput() != null && gnode.getOutput().getAttributes() != null){
+            attrsvalue = gnode.getOutput().getAttributes().keySet().toString();
+        }
+        map.put("Atts", attrsvalue);
         map.put("transportUrl", transportUrl);
         map.put("className", sink.getClass().getCanonicalName());
         map.put("Id", sink.getId().toString());
-        
+
         return map;
     }
-    
-    private static Map<String, String> processorResponse(Processor processor, String transportUrl){
+
+    private static Map<String, String> processorResponse(AbstractProcessor processor, Gnode gnode, String transportUrl) {
         Map<String, String> map = new HashMap<>();
+        String attrsvalue = null;
+        if(gnode.getOutput() != null && gnode.getOutput().getAttributes() != null){
+            attrsvalue = gnode.getOutput().getAttributes().keySet().toString();
+        }
+        map.put("Atts", attrsvalue);
         map.put("transportUrl", transportUrl);
         map.put("className", processor.getClass().getCanonicalName());
         map.put("Id", processor.getId().toString());
-        
+
         return map;
     }
 }
