@@ -21,6 +21,12 @@ import org.openide.util.Exceptions;
 public class MainMultimap {
 
     public static void main(String[] args) {
+        String str= "one:two";
+        String[] stra = str.split(":");
+        
+        System.out.println(stra);
+        
+        
 //        Integer intg = new Integer();
 //        
 //        String str = new String();

@@ -39,9 +39,9 @@ import org.lisapark.koctopus.core.source.Source;
 import org.lisapark.koctopus.compute.util.Connections;
 import org.lisapark.koctopus.compute.util.DaoUtils;
 import org.lisapark.koctopus.core.graph.Gnode;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.openide.util.Exceptions;
+import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  *
@@ -302,7 +302,7 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
         }
 
         @Override
-        public void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId) {
+        public void processEvent(StreamingRuntime runtime, Map<Integer, Event> eventsByInputId) {
             throw new UnsupportedOperationException("Not supported yet.");
             //To change body of generated methods, choose Tools | Templates.
         }

@@ -36,8 +36,8 @@ import org.lisapark.koctopus.core.processor.CompiledProcessor;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
+import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  * This {@link AbstractProcessor} is used for computing a Simple Moving Average on a single input and producing an average
@@ -221,7 +221,7 @@ public class Sma extends AbstractProcessor<Double> {
         }
 
         @Override
-        public void processEvent(StreamProcessingRuntime runtime) {
+        public void processEvent(StreamingRuntime runtime) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }

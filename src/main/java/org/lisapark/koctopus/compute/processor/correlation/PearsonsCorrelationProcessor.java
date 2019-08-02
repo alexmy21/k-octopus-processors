@@ -33,9 +33,9 @@ import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.ProcessorContext;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.util.Pair;
+import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  *
@@ -242,7 +242,7 @@ public class PearsonsCorrelationProcessor extends AbstractProcessor<Pair<Double,
         }
 
         @Override
-        public void processEvent(StreamProcessingRuntime runtime) {
+        public void processEvent(StreamingRuntime runtime) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }

@@ -32,10 +32,10 @@ import java.util.Map;
 import java.util.UUID;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.graph.Gnode;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.openide.util.Exceptions;
+import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -175,7 +175,7 @@ public class TestRandomBinarySource extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(StreamProcessingRuntime runtime) throws ProcessingException {
+        public void startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
             
         }
     }

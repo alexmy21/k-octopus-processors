@@ -28,10 +28,10 @@ import org.lisapark.koctopus.core.event.Event;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.openide.util.Exceptions;
+import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  *
@@ -154,7 +154,7 @@ public class RTCSource extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(StreamProcessingRuntime runtime) throws ProcessingException {
+        public void startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
             
         }
     }

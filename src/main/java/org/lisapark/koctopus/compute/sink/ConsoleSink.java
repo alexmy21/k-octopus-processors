@@ -36,10 +36,10 @@ import java.util.stream.Collectors;
 import org.lisapark.koctopus.core.event.Attribute;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.parameter.Parameter;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
+import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -236,7 +236,7 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
         }
 
         @Override
-        public void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId) {
+        public void processEvent(StreamingRuntime runtime, Map<Integer, Event> eventsByInputId) {
             // TODO. remove when transition completed
             throw new UnsupportedOperationException("Not supported yet."); 
             //To change body of generated methods, choose Tools | Templates.

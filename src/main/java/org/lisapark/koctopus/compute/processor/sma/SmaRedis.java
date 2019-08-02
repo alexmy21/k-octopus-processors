@@ -42,8 +42,8 @@ import org.lisapark.koctopus.core.processor.CompiledProcessor;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
+import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  * This {@link AbstractProcessor} is used for computing a Simple Moving Average
@@ -238,7 +238,7 @@ public class SmaRedis extends AbstractProcessor<Double> {
         }
 
         @Override
-        public void processEvent(StreamProcessingRuntime runtime) {
+        public void processEvent(StreamingRuntime runtime) {
             String inputName = sma.getInputs().get(0).getName();
             String outAttName = sma.getOutputAttributeName();
             String sourceClassName = sma.getReferences().get(inputName).getReferenceClass();

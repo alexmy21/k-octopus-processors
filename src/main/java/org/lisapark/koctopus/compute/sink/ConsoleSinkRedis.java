@@ -36,11 +36,10 @@ import java.util.UUID;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.parameter.Parameter;
-import org.lisapark.koctopus.core.processor.ProcessorInput;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
+import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  * @author alexmy
@@ -212,7 +211,7 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
          * @param eventsByInputId
          */
         @Override
-        public synchronized void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId) {
+        public synchronized void processEvent(StreamingRuntime runtime, Map<Integer, Event> eventsByInputId) {
             String inputName = sink.getInput().getName();
             String sourceClassName = sink.getReferences().get(inputName).getReferenceClass();
             String sourceId = sink.getReferences().get(inputName).getReferenceId();

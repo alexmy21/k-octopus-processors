@@ -44,8 +44,8 @@ import org.lisapark.koctopus.core.source.external.ExternalSource;
 import static com.google.common.base.Preconditions.checkState;
 import java.util.logging.Level;
 import org.lisapark.koctopus.core.graph.Gnode;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 import org.openide.util.Exceptions;
+import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  *
@@ -301,7 +301,7 @@ public class DbScannerSource  extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(StreamProcessingRuntime runtime) throws ProcessingException {
+        public void startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
             
         }
     }
