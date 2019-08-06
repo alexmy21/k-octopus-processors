@@ -1,9 +1,11 @@
+package org.lisapark.koctopus.compute.util;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.lisapark.koctopus.compute;
+
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;

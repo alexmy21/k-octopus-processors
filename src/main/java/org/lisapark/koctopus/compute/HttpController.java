@@ -16,16 +16,12 @@
  */
 package org.lisapark.koctopus.compute;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.lisapark.koctopus.compute.util.ServiceUtils;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.graph.Gnode;
-import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.runtime.BaseController;
 import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
-import org.lisapark.koctopus.core.sink.external.ExternalSink;
-import org.lisapark.koctopus.core.source.external.ExternalSource;
 import spark.Request;
 import spark.Response;
 
@@ -33,7 +29,7 @@ import spark.Response;
  *
  * @author alexmy
  */
-public class Controller extends BaseController {
+public class HttpController extends BaseController {
 
     private static final String DEFAULT_TRANSPORT_URL = "redis://localhost";
 
@@ -50,6 +46,10 @@ public class Controller extends BaseController {
             return this.statusCode;
         }
     }
+    
+    public HttpController(){
+        super();
+    }
 
     /**
      *
@@ -58,8 +58,9 @@ public class Controller extends BaseController {
      * @return
      * @throws ValidationException
      * @throws ProcessingException
+     * @throws java.lang.InterruptedException
      */
-    public static String process(Request req, Response res) throws ValidationException, ProcessingException {
+    public String startProcessing(Request req, Response res) throws ValidationException, ProcessingException, InterruptedException {
         String requestJson = req.body();
         String result = null;
         res.type("application/json;charset=utf8");
@@ -68,10 +69,8 @@ public class Controller extends BaseController {
         if (!ServiceUtils.validateInput(requestJson)) {
             res.status(Status.ERROR.getStatusCode());
         } else {            
-            Gnode gnode = (Gnode) new Gnode().fromJson(requestJson);
-            String trnsUrl = gnode.getTransportUrl() == null ? DEFAULT_TRANSPORT_URL : gnode.getTransportUrl();
-            RedisRuntime runtime = new RedisRuntime(trnsUrl, System.out, System.err);
-            result = process(requestJson, runtime);
+            
+            result = process(requestJson);
             if(result == null){
                 res.status(Status.ERROR.getStatusCode());
             } else {

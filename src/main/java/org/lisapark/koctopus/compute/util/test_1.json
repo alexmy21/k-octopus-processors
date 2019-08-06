@@ -1,7 +1,7 @@
 {
-    "id": "4aee06f7-9b64-4665-8f2b-fe30bd854100",
-    "type": "PROCESSING_GRAPH",
-    "label": "Test",
+    "id": "1914c7ff-8a98-48d9-9baa-8ba8a904371c",
+    "type": "org.lisapark.koctopus.core.runtime.OctopusRunner",
+    "label": "MODEL",
     "params": {
         "params": {
             "0": {
@@ -14,10 +14,11 @@
     },
     "directed": true,
     "nodes": [{
-            "id": "36fb098c-bb52-489b-9b73-bf09ec5d1df8",
+            "id": "6459c484-70b4-41fd-9768-3f054c4ace71",
             "type": "org.lisapark.koctopus.compute.source.TestSourceRedis",
             "label": "SOURCE",
             "transportUrl": "redis://localhost",
+            "color": "untouched",
             "params": {
                 "params": {
                     "1": {
@@ -45,14 +46,21 @@
                 }
             }
         }, {
-            "id": "0e2a52d0-53a3-4007-a25f-0322263d9e5f",
-            "type": "org.lisapark.koctopus.compute.processor.sma.Sma",
+            "id": "4dd79307-fd6a-47d3-9ba8-7dd7f21747a4",
+            "type": "org.lisapark.koctopus.compute.processor.sma.SmaRedis",
             "label": "PROCESSOR",
             "transportUrl": "redis://localhost",
+            "color": "untouched",
             "params": {
                 "params": {
                     "1": {
                         "id": 1,
+                        "name": "Redis URL",
+                        "className": "java.lang.String",
+                        "value": "redis://localhost"
+                    },
+                    "2": {
+                        "id": 2,
                         "name": "Time window",
                         "className": "java.lang.Integer",
                         "value": 10.0
@@ -65,7 +73,7 @@
                         "id": 1,
                         "name": "Input",
                         "sourceClassName": "org.lisapark.koctopus.compute.source.TestSourceRedis",
-                        "sourceId": "36fb098c-bb52-489b-9b73-bf09ec5d1df8",
+                        "sourceId": "6459c484-70b4-41fd-9768-3f054c4ace71",
                         "attributes": {
                             "Att": {
                                 "name": "Att",
@@ -86,10 +94,11 @@
                 }
             }
         }, {
-            "id": "c78f7b32-6f5d-4530-82e0-217feddc61ae",
+            "id": "a77f5564-8ebe-4414-a503-f4e0c3e0e7a2",
             "type": "org.lisapark.koctopus.compute.sink.ConsoleSinkRedis",
             "label": "SINK",
             "transportUrl": "redis://localhost",
+            "color": "untouched",
             "params": {
                 "params": {
                     "0": {
@@ -116,8 +125,8 @@
                     "Input": {
                         "id": 1,
                         "name": "Input",
-                        "sourceClassName": "org.lisapark.koctopus.compute.processor.sma.Sma",
-                        "sourceId": "0e2a52d0-53a3-4007-a25f-0322263d9e5f",
+                        "sourceClassName": "org.lisapark.koctopus.compute.processor.sma.SmaRedis",
+                        "sourceId": "4dd79307-fd6a-47d3-9ba8-7dd7f21747a4",
                         "attributes": {
                             "average": {
                                 "name": "average",
@@ -129,15 +138,15 @@
             }
         }],
     "edges": [{
-            "source": "org.lisapark.koctopus.compute.source.TestSourceRedis:36fb098c-bb52-489b-9b73-bf09ec5d1df8",
+            "source": "org.lisapark.koctopus.compute.source.TestSourceRedis:6459c484-70b4-41fd-9768-3f054c4ace71",
             "relation": "Input",
-            "target": "org.lisapark.koctopus.compute.processor.sma.Sma:0e2a52d0-53a3-4007-a25f-0322263d9e5f",
+            "target": "org.lisapark.koctopus.compute.processor.sma.SmaRedis:4dd79307-fd6a-47d3-9ba8-7dd7f21747a4",
             "directed": true,
             "label": "MODEL"
         }, {
-            "source": "org.lisapark.koctopus.compute.processor.sma.Sma:0e2a52d0-53a3-4007-a25f-0322263d9e5f",
+            "source": "org.lisapark.koctopus.compute.processor.sma.SmaRedis:4dd79307-fd6a-47d3-9ba8-7dd7f21747a4",
             "relation": "Input",
-            "target": "org.lisapark.koctopus.compute.sink.ConsoleSinkRedis:c78f7b32-6f5d-4530-82e0-217feddc61ae",
+            "target": "org.lisapark.koctopus.compute.sink.ConsoleSinkRedis:a77f5564-8ebe-4414-a503-f4e0c3e0e7a2",
             "directed": true,
             "label": "MODEL"
         }]

@@ -19,22 +19,27 @@ package org.lisapark.koctopus.compute;
 import static spark.Spark.*;
 
 /**
- * 
+ *
  * @author alexmy
  */
 public class ComputeService {
 
     public static void main(String[] args) {
+        
+        System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
+        System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
+
+        
         // Set Server port
         int _port = 4567;
         String endPoint = "/k-octopus/compute";
         if (args.length > 0) {
             _port = Integer.valueOf(args[0]);
-        }        
+        }
         port(_port);
         // Map requests
         post(endPoint, (req, res) -> {
-            return Controller.process(req, res);
+            return new HttpController().startProcessing(req, res);
         });
     }
 }
