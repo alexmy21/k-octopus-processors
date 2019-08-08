@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.sink;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import io.lettuce.core.StreamMessage;
@@ -35,6 +36,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.GraphUtils;
+import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
@@ -69,7 +71,7 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     protected Map<String, StreamReference> sourcerefs = new HashMap<>();
     
     public ConsoleSinkRedis(){
-        super(UUID.randomUUID(), DEFAULT_NAME, DEFAULT_DESCRIPTION);
+        super(Generators.timeBasedGenerator().generate(), DEFAULT_NAME, DEFAULT_DESCRIPTION);
         input = Input.eventInputWithId(1);
         input.setName(DEFAULT_INPUT);
         input.setDescription(DEFAULT_INPUT);
@@ -134,12 +136,12 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
 
     @Override
     public ConsoleSinkRedis newInstance() {
-        return new ConsoleSinkRedis(UUID.randomUUID(), this);
+        return new ConsoleSinkRedis(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
     public ConsoleSinkRedis newInstance(Gnode gnode) {
-        String uuid = gnode.getId() == null ? UUID.randomUUID().toString() : gnode.getId();
+        String uuid = gnode.getId() == null ? Generators.timeBasedGenerator().generate().toString() : gnode.getId();
         ConsoleSinkRedis sink = newTemplate(UUID.fromString(uuid));
         GraphUtils.buildSink(sink, gnode);
         return sink;
@@ -151,7 +153,7 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     }
 
     public static ConsoleSinkRedis newTemplate() {
-        UUID sinkId = UUID.randomUUID();
+        UUID sinkId = Generators.timeBasedGenerator().generate();
         return newTemplate(sinkId);
     }
 
@@ -211,12 +213,17 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
          * @param eventsByInputId
          */
         @Override
-        public synchronized void processEvent(StreamingRuntime runtime, Map<Integer, Event> eventsByInputId) {
+        public synchronized Integer processEvent(StreamingRuntime runtime) {
+            
+            runtime.start();
+            
             String inputName = sink.getInput().getName();
             String sourceClassName = sink.getReferences().get(inputName).getReferenceClass();
             String sourceId = sink.getReferences().get(inputName).getReferenceId();
             int pageSize = sink.getPageSize();
+            
             String offset = "0";
+            Integer status = GraphVocabulary.CANCEL;
             while (true) {
                 List<StreamMessage<String, String>> list;               
                 list = runtime.readEvents(sourceClassName, UUID.fromString(sourceId), offset, pageSize);
@@ -229,10 +236,15 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
                         }
                     });
                     offset = list.get(list.size() - 1).getId();
+                    status = GraphVocabulary.BACK_LOG;
                 } else {
+                    status = GraphVocabulary.COMPLETE;
                     break;
                 }
-            }            
+            }  
+            runtime.shutdown();
+            
+            return status;          
         }
 
         /**

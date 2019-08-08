@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.source;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Maps;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.ProcessingException;
@@ -140,7 +141,7 @@ public class DbScannerSource  extends ExternalSource {
 
     @Override
     public DbScannerSource newInstance() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
         return new DbScannerSource(sourceId, this);
     }
 
@@ -155,7 +156,7 @@ public class DbScannerSource  extends ExternalSource {
     }
 
     public static DbScannerSource newTemplate() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
         DbScannerSource jdbc = new DbScannerSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(URL_PARAMETER_ID, "URL").required(true));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(USER_NAME_PARAMETER_ID, "User name"));
@@ -301,8 +302,8 @@ public class DbScannerSource  extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
-            
+        public Object startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
+            return null;
         }
     }
 }

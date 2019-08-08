@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.source;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.Map;
@@ -102,7 +103,7 @@ public class KickStarterSource extends ExternalSource {
 
     @Override
     public KickStarterSource newInstance() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
         return new KickStarterSource(sourceId, this);
     }
 
@@ -112,7 +113,7 @@ public class KickStarterSource extends ExternalSource {
     }
 
     public static KickStarterSource newTemplate() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
 
         KickStarterSource modelSource = new KickStarterSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         modelSource.setOutput(Output.outputWithId(1).setName("Output data"));
@@ -210,8 +211,8 @@ public class KickStarterSource extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
-            
+        public Object startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
+            return null;
         }
     }
 }

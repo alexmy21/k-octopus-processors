@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.pipe;
 
+import com.fasterxml.uuid.Generators;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
@@ -87,7 +88,7 @@ public class RTCAcontroller extends AbstractProcessor<Void> {
 
     @Override
     public RTCAcontroller newInstance() {
-        return new RTCAcontroller(UUID.randomUUID(), this);
+        return new RTCAcontroller(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
@@ -137,7 +138,7 @@ public class RTCAcontroller extends AbstractProcessor<Void> {
      * @return new {@link Pipe}
      */
     public static RTCAcontroller newTemplate() {
-        UUID processorId = UUID.randomUUID();
+        UUID processorId = Generators.timeBasedGenerator().generate();
         RTCAcontroller rtc = new RTCAcontroller(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         // only a single boolean input
@@ -280,7 +281,7 @@ public class RTCAcontroller extends AbstractProcessor<Void> {
         }
 
         @Override
-        public void processEvent(StreamingRuntime runtime) {
+        public Object processEvent(StreamingRuntime runtime) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }

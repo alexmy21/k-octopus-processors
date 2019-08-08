@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.processor.correlation;
 
+import com.fasterxml.uuid.Generators;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
@@ -99,7 +100,7 @@ public class PearsonsCorrelationProcessor extends AbstractProcessor<Pair<Double,
 
     @Override
     public PearsonsCorrelationProcessor newInstance() {
-        return new PearsonsCorrelationProcessor(UUID.randomUUID(), this);
+        return new PearsonsCorrelationProcessor(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
@@ -142,7 +143,7 @@ public class PearsonsCorrelationProcessor extends AbstractProcessor<Pair<Double,
      * @return new {@link PearsonsCorrelationProcessor}
      */
     public static PearsonsCorrelationProcessor newTemplate() {
-        UUID processorId = UUID.randomUUID();
+        UUID processorId = Generators.timeBasedGenerator().generate();
         PearsonsCorrelationProcessor correlation = new PearsonsCorrelationProcessor(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         
         correlation.addParameter(
@@ -242,7 +243,7 @@ public class PearsonsCorrelationProcessor extends AbstractProcessor<Pair<Double,
         }
 
         @Override
-        public void processEvent(StreamingRuntime runtime) {
+        public Object processEvent(StreamingRuntime runtime) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }

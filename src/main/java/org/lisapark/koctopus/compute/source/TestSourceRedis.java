@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.source;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Maps;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.Persistable;
@@ -33,6 +34,7 @@ import java.util.UUID;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.GraphUtils;
+import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.openide.util.Exceptions;
@@ -55,7 +57,7 @@ public class TestSourceRedis extends ExternalSource {
     }
     
     public TestSourceRedis() {
-        super(UUID.randomUUID());
+        super(Generators.timeBasedGenerator().generate());
     }
     
     public TestSourceRedis(UUID id, String name, String description) {
@@ -85,13 +87,13 @@ public class TestSourceRedis extends ExternalSource {
     
     @Override
     public TestSourceRedis newInstance() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
         return new TestSourceRedis(sourceId, this);
     }
     
     @Override
     public TestSourceRedis newInstance(Gnode gnode) {
-        String uuid = gnode.getId() == null ? UUID.randomUUID().toString() : gnode.getId();
+        String uuid = gnode.getId() == null ? Generators.timeBasedGenerator().generate().toString() : gnode.getId();
         TestSourceRedis testSource = newTemplate(UUID.fromString(uuid));
         GraphUtils.buildSource(testSource, gnode);
         
@@ -99,7 +101,7 @@ public class TestSourceRedis extends ExternalSource {
     }
    
     public static TestSourceRedis newTemplate() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
         return newTemplate(sourceId);
     }
     
@@ -151,12 +153,12 @@ public class TestSourceRedis extends ExternalSource {
         }
         
         @Override
-        public void startProcessingEvents(StreamingRuntime runtime) {    
-            
+        public Integer startProcessingEvents(StreamingRuntime runtime) {             
             
             Thread thread = Thread.currentThread();
             runtime.start();
             running = true;
+            Integer status = GraphVocabulary.COMPLETE;
             
             EventType eventType = source.getOutput().getEventType();
             List<Attribute> attributes = eventType.getAttributes();
@@ -170,9 +172,11 @@ public class TestSourceRedis extends ExternalSource {
                 try {
                     Thread.sleep(SLIEEP_TIME);
                 } catch (InterruptedException ex) {
+                    status = GraphVocabulary.CANCEL;
                     Exceptions.printStackTrace(ex);
                 }
             }
+            return status;
         }
         
         private Event createEvent(List<Attribute> attributes, int eventNumber) {

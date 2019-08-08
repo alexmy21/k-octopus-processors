@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.processor.sma;
 
+import com.fasterxml.uuid.Generators;
 import org.lisapark.koctopus.ProgrammerException;
 import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.Output;
@@ -101,7 +102,7 @@ public class Sma extends AbstractProcessor<Double> {
 
     @Override
     public Sma newInstance() {
-        return new Sma(UUID.randomUUID(), this);
+        return new Sma(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
@@ -122,7 +123,7 @@ public class Sma extends AbstractProcessor<Double> {
      * @return new {@link Sma}
      */
     public static Sma newTemplate() {
-        UUID processorId = UUID.randomUUID();
+        UUID processorId = Generators.timeBasedGenerator().generate();
         Sma sma = new Sma(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         // sma only has window length paramater
         sma.addParameter(
@@ -221,7 +222,7 @@ public class Sma extends AbstractProcessor<Double> {
         }
 
         @Override
-        public void processEvent(StreamingRuntime runtime) {
+        public Object processEvent(StreamingRuntime runtime) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }

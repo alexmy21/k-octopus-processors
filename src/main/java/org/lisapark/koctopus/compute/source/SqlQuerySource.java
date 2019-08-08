@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.source;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Maps;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.Persistable;
@@ -129,7 +130,7 @@ public class SqlQuerySource extends ExternalSource {
 
     @Override
     public SqlQuerySource newInstance() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
         return new SqlQuerySource(sourceId, this);
     }
 
@@ -144,7 +145,7 @@ public class SqlQuerySource extends ExternalSource {
     }
 
     public static SqlQuerySource newTemplate() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
         SqlQuerySource jdbc = new SqlQuerySource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(URL_PARAMETER_ID, "URL").required(true));
         jdbc.addParameter(Parameter.stringParameterWithIdAndName(USER_NAME_PARAMETER_ID, "User name"));
@@ -286,8 +287,8 @@ public class SqlQuerySource extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
-            
+        public Object startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
+            return null;
         }
     }
 }

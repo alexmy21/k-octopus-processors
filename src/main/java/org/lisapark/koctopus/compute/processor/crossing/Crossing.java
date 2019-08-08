@@ -20,6 +20,7 @@ package org.lisapark.koctopus.compute.processor.crossing;
  *
  * @author Alex Mylnikov (alexmy@lisa-park.com)
  */
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
@@ -91,7 +92,7 @@ public class Crossing extends AbstractProcessor<Pair> {
 
     @Override
     public Crossing newInstance() {
-        return new Crossing(UUID.randomUUID(), this);
+        return new Crossing(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
@@ -134,7 +135,7 @@ public class Crossing extends AbstractProcessor<Pair> {
      * @return new {@link CrossAbove}
      */
     public static Crossing newTemplate() {
-        UUID processorId = UUID.randomUUID();
+        UUID processorId = Generators.timeBasedGenerator().generate();
         Crossing cross = new Crossing(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         // two double inputs
@@ -231,7 +232,7 @@ public class Crossing extends AbstractProcessor<Pair> {
         }
 
         @Override
-        public void processEvent(StreamingRuntime runtime) {
+        public Object processEvent(StreamingRuntime runtime) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }

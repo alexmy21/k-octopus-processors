@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.source;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class RedisQuittokenSource extends ExternalSource {
 
     @Override
     public RedisQuittokenSource newInstance() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
         return new RedisQuittokenSource(sourceId, this);
     }
 
@@ -83,7 +84,7 @@ public class RedisQuittokenSource extends ExternalSource {
     }
 
     public static RedisQuittokenSource newTemplate() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
 
         RedisQuittokenSource redisSource = new RedisQuittokenSource(sourceId, "Radis Quittoken Source", "Generates quit token to stop all Octopus models that are listening to the channel specified in corresponding Resin Publisher Sink of a given model.");
         redisSource.setOutput(Output.outputWithId(1).setName("Output data"));
@@ -140,8 +141,8 @@ public class RedisQuittokenSource extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
-            
+        public Object startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
+            return null;
         }
     }
 }

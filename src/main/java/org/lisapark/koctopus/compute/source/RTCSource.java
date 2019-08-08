@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.source;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.UUID;
@@ -72,7 +73,7 @@ public class RTCSource extends ExternalSource {
 
     @Override
     public RTCSource newInstance() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
         return new RTCSource(sourceId, this);
     }
 
@@ -82,7 +83,7 @@ public class RTCSource extends ExternalSource {
     }
 
     public static RTCSource newTemplate() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
 
         RTCSource rtcSource = new RTCSource(sourceId, "RTC Source", "Generates run token to start all Octopus model's"
                 + " containers that are connected to the source.");
@@ -154,8 +155,8 @@ public class RTCSource extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
-            
+        public Object startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
+            return null;
         }
     }
 }

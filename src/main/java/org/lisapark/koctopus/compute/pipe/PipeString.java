@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.pipe;
 
+import com.fasterxml.uuid.Generators;
 import java.util.Map;
 import java.util.UUID;
 import org.lisapark.koctopus.ProgrammerException;
@@ -74,7 +75,7 @@ public class PipeString extends AbstractProcessor<Double> {
 
     @Override
     public PipeString newInstance() {
-        return new PipeString(UUID.randomUUID(), this);
+        return new PipeString(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
@@ -110,7 +111,7 @@ public class PipeString extends AbstractProcessor<Double> {
      * @return new {@link Sma}
      */
     public static PipeString newTemplate() {
-        UUID processorId = UUID.randomUUID();
+        UUID processorId = Generators.timeBasedGenerator().generate();
         PipeString connector = new PipeString(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         // only a single double input
@@ -171,7 +172,7 @@ public class PipeString extends AbstractProcessor<Double> {
         }
 
         @Override
-        public void processEvent(StreamingRuntime runtime) {
+        public Object processEvent(StreamingRuntime runtime) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }

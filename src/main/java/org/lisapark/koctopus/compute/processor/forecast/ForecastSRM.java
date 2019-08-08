@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.processor.forecast;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import java.util.Collection;
@@ -152,7 +153,7 @@ public class ForecastSRM extends AbstractProcessor<Double> {
 
     @Override
     public ForecastSRM newInstance() {
-        return new ForecastSRM(UUID.randomUUID(), this);
+        return new ForecastSRM(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
@@ -193,7 +194,7 @@ public class ForecastSRM extends AbstractProcessor<Double> {
      * @return
      */
     public static ForecastSRM newTemplate() {
-        UUID processorId = UUID.randomUUID();
+        UUID processorId = Generators.timeBasedGenerator().generate();
         ForecastSRM regression = new ForecastSRM(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         ProcessorInput<Double> inputFieldName = ProcessorInput.doubleInputWithId(INPUT_FIELD_NAME_PARAM_ID).name("Input field name: ")
@@ -366,7 +367,7 @@ public class ForecastSRM extends AbstractProcessor<Double> {
         }
 
         @Override
-        public void processEvent(StreamingRuntime runtime) {
+        public Object processEvent(StreamingRuntime runtime) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }

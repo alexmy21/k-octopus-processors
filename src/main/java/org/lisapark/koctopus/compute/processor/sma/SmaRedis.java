@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.processor.sma;
 
+import com.fasterxml.uuid.Generators;
 import io.lettuce.core.StreamMessage;
 import org.lisapark.koctopus.ProgrammerException;
 import org.lisapark.koctopus.core.Input;
@@ -37,6 +38,7 @@ import java.util.UUID;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.graph.NodeAttribute;
+import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
 import org.lisapark.koctopus.core.memory.heap.HeapCircularBuffer;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
@@ -86,7 +88,7 @@ public class SmaRedis extends AbstractProcessor<Double> {
     protected Map<String, StreamReference> procrefs = new HashMap<>();
 
     public SmaRedis() {
-        super(UUID.randomUUID(), DEFAULT_NAME, DEFAULT_INPUT_DESCRIPTION);
+        super(Generators.timeBasedGenerator().generate(), DEFAULT_NAME, DEFAULT_INPUT_DESCRIPTION);
     }
 
     protected SmaRedis(UUID id, String name, String description) {
@@ -122,12 +124,12 @@ public class SmaRedis extends AbstractProcessor<Double> {
 
     @Override
     public SmaRedis newInstance() {
-        return new SmaRedis(UUID.randomUUID(), this);
+        return new SmaRedis(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
     public SmaRedis newInstance(Gnode gnode) {
-        String uuid = gnode.getId() == null ? UUID.randomUUID().toString() : gnode.getId();
+        String uuid = gnode.getId() == null ? Generators.timeBasedGenerator().generate().toString() : gnode.getId();
         SmaRedis smaRedis = newTemplate(UUID.fromString(uuid));
         GraphUtils.buildProcessor(smaRedis, gnode);
 
@@ -142,7 +144,7 @@ public class SmaRedis extends AbstractProcessor<Double> {
      * @return new {@link Sma}
      */
     public static SmaRedis newTemplate() {
-        UUID uuid = UUID.randomUUID();
+        UUID uuid = Generators.timeBasedGenerator().generate();
         return newTemplate(uuid);
     }
 
@@ -238,25 +240,27 @@ public class SmaRedis extends AbstractProcessor<Double> {
         }
 
         @Override
-        public void processEvent(StreamingRuntime runtime) {
+        public Integer processEvent(StreamingRuntime runtime) {
             String inputName = sma.getInputs().get(0).getName();
             String outAttName = sma.getOutputAttributeName();
             String sourceClassName = sma.getReferences().get(inputName).getReferenceClass();
             String sourceId = sma.getReferences().get(inputName).getReferenceId();
 
+            Integer status;
             Map<String, NodeAttribute> event = sma.getReferences().get(inputName).getAttributes();
             String inputAttName;
-            if (event.size() == 1) {
+            if (event != null && event.size() == 1) {
                 inputAttName = event.keySet().iterator().next();
             } else {
-                return;
+                status = GraphVocabulary.CANCEL;
+                return status;
             }
 
-            Double newItem = 0D;
             HeapCircularBuffer<Double> processorMemory = new HeapCircularBuffer<>(sma.getWindowLength());
 
             runtime.start();
             String offset = "0";
+            status = GraphVocabulary.BACK_LOG;
             while (true) {
                 // Read messagesfrom the Redis stream
                 List<StreamMessage<String, String>> list;
@@ -286,10 +290,12 @@ public class SmaRedis extends AbstractProcessor<Double> {
                     });
                     offset = list.get(list.size() - 1).getId();
                 } else {
+                    status = GraphVocabulary.COMPLETE;
                     runtime.shutdown();
                     break;
                 }
             }
+            return status;
         }
 
         @Override

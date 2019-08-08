@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.pipe;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
@@ -70,7 +71,7 @@ public class Pipe extends AbstractProcessor<Integer> {
 
     @Override
     public Pipe newInstance() {
-        return new Pipe(UUID.randomUUID(), this);
+        return new Pipe(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
@@ -118,7 +119,7 @@ public class Pipe extends AbstractProcessor<Integer> {
      * @return new {@link Pipe}
      */
     public static Pipe newTemplate() {
-        UUID processorId = UUID.randomUUID();
+        UUID processorId = Generators.timeBasedGenerator().generate();
         Pipe pipe = new Pipe(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         // only a single double input
@@ -179,7 +180,7 @@ public class Pipe extends AbstractProcessor<Integer> {
         }
 
         @Override
-        public void processEvent(StreamingRuntime runtime) {
+        public Object processEvent(StreamingRuntime runtime) {
             throw new UnsupportedOperationException("Not supported yet."); 
             //To change body of generated methods, choose Tools | Templates.
         }

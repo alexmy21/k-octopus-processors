@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.sink;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import java.sql.Connection;
@@ -149,7 +150,7 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
 
     @Override
     public DatabaseSink newInstance() {
-        return new DatabaseSink(UUID.randomUUID(), this);
+        return new DatabaseSink(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
@@ -158,7 +159,7 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
     }
 
     public static DatabaseSink newTemplate() {
-        UUID sinkId = UUID.randomUUID();
+        UUID sinkId = Generators.timeBasedGenerator().generate();
 
         DatabaseSink databaseSink = new DatabaseSink(sinkId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
@@ -292,7 +293,7 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
 
             for (String attr : attList) {
                 if (attr.equalsIgnoreCase(databaseSink.getUuidFieldName())) {
-                    retMap.put(attr, UUID.randomUUID());
+                    retMap.put(attr, Generators.timeBasedGenerator().generate());
                 } else {
                     retMap.put(attr, eventMap.get(attr));
                 }
@@ -302,7 +303,7 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
         }
 
         @Override
-        public void processEvent(StreamingRuntime runtime, Map<Integer, Event> eventsByInputId) {
+        public Object processEvent(StreamingRuntime runtime) {
             throw new UnsupportedOperationException("Not supported yet.");
             //To change body of generated methods, choose Tools | Templates.
         }

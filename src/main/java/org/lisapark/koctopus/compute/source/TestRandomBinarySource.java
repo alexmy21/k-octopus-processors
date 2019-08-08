@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.source;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Maps;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.Persistable;
@@ -78,7 +79,7 @@ public class TestRandomBinarySource extends ExternalSource {
 
     @Override
     public TestRandomBinarySource newInstance() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
         return new TestRandomBinarySource(sourceId, this);
     }
 
@@ -88,7 +89,7 @@ public class TestRandomBinarySource extends ExternalSource {
     }
 
     public static TestRandomBinarySource newTemplate() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
 
         TestRandomBinarySource testSource = new TestRandomBinarySource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         testSource.setOutput(Output.outputWithId(1).setName("Output"));
@@ -175,8 +176,8 @@ public class TestRandomBinarySource extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
-            
+        public Object startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
+            return null;
         }
     }
 }

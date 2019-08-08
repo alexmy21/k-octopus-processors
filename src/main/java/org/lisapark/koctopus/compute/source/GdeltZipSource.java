@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.source;
 
+import com.fasterxml.uuid.Generators;
 import static com.google.common.base.Preconditions.checkState;
 import com.google.common.collect.Maps;
 import java.io.BufferedReader;
@@ -151,7 +152,7 @@ public class GdeltZipSource extends ExternalSource {
 
     @Override
     public GdeltZipSource newInstance() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
         return new GdeltZipSource(sourceId, this);
     }
 
@@ -161,7 +162,7 @@ public class GdeltZipSource extends ExternalSource {
     }
 
     public static GdeltZipSource newTemplate() {
-        UUID sourceId = UUID.randomUUID();
+        UUID sourceId = Generators.timeBasedGenerator().generate();
 
         GdeltZipSource gdeltZipSource = new GdeltZipSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         gdeltZipSource.setOutput(Output.outputWithId(1).setName("Output"));
@@ -316,8 +317,8 @@ public class GdeltZipSource extends ExternalSource {
         }
 
         @Override
-        public void startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
-            
+        public Object startProcessingEvents(StreamingRuntime runtime) throws ProcessingException {
+            return null;
         }
     }
 }

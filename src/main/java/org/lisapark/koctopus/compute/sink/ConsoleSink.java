@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.sink;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
@@ -109,7 +110,7 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
 
     @Override
     public ConsoleSink newInstance() {
-        return new ConsoleSink(UUID.randomUUID(), this);
+        return new ConsoleSink(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
@@ -123,7 +124,7 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
     }
 
     public static ConsoleSink newTemplate() {
-        UUID sinkId = UUID.randomUUID();
+        UUID sinkId = Generators.timeBasedGenerator().generate();
         ConsoleSink consoleSink = new ConsoleSink(sinkId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         
         consoleSink.addParameter(
@@ -236,7 +237,7 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
         }
 
         @Override
-        public void processEvent(StreamingRuntime runtime, Map<Integer, Event> eventsByInputId) {
+        public Object processEvent(StreamingRuntime runtime) {
             // TODO. remove when transition completed
             throw new UnsupportedOperationException("Not supported yet."); 
             //To change body of generated methods, choose Tools | Templates.

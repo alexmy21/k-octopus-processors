@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.compute.processor.regression;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Map;
@@ -134,7 +135,7 @@ public class LinearRegressionProcessor extends AbstractProcessor<Pair<Double, Do
 
     @Override
     public LinearRegressionProcessor newInstance() {
-        return new LinearRegressionProcessor(UUID.randomUUID(), this);
+        return new LinearRegressionProcessor(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
@@ -180,7 +181,7 @@ public class LinearRegressionProcessor extends AbstractProcessor<Pair<Double, Do
      * @return new {@link LinearRegressionProcessor}
      */
     public static LinearRegressionProcessor newTemplate() {
-        UUID processorId = UUID.randomUUID();
+        UUID processorId = Generators.timeBasedGenerator().generate();
         LinearRegressionProcessor regression = new LinearRegressionProcessor(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
 
         regression.addParameter(
@@ -328,7 +329,7 @@ public class LinearRegressionProcessor extends AbstractProcessor<Pair<Double, Do
         }
 
         @Override
-        public void processEvent(StreamingRuntime runtime) {
+        public Object processEvent(StreamingRuntime runtime) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }

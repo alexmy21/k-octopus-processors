@@ -16,9 +16,9 @@ package org.lisapark.koctopus.compute;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-
+import com.fasterxml.uuid.Generators;
 import com.google.gson.Gson;
+import java.util.UUID;
 import org.lisapark.koctopus.compute.processor.sma.SmaRedis;
 import org.lisapark.koctopus.compute.sink.ConsoleSinkRedis;
 import org.lisapark.koctopus.compute.source.TestSourceRedis;
@@ -26,7 +26,6 @@ import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.Graph;
 import org.lisapark.koctopus.core.graph.GraphUtils;
-import org.lisapark.koctopus.core.graph.api.INode;
 
 /**
  *
@@ -35,13 +34,20 @@ import org.lisapark.koctopus.core.graph.api.INode;
 public class Main {
 
     public static void main(String[] args) {
+
+        String uuid = Generators.timeBasedGenerator().generate().toString();
+
+        UUID _uuid = UUID.fromString(uuid);
         
+        Long time = _uuid.timestamp();
+
         ProcessingModel model = createProcessingModel();
-        Graph graph = GraphUtils.compileGraph(model);       
+        
+        Graph graph = GraphUtils.compileGraph(model, null, true);
         System.out.println(new Gson().toJson(graph.getParams()));
-        
-        System.out.println(new Gson().toJson((Gnode)graph, Gnode.class));
-        
+
+        System.out.println(new Gson().toJson((Gnode) graph, Gnode.class));
+
         System.out.println(graph.toJson());
         Graph graphCopy = new Graph().fromJson(graph.toJson().toString());
         System.out.println(graphCopy.toJson());
@@ -66,5 +72,5 @@ public class Main {
         model.addExternalSink(sink);
 
         return model;
-    }    
+    }
 }
