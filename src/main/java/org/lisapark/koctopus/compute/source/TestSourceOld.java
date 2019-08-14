@@ -42,22 +42,22 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class TestSource extends ExternalSource {
+public class TestSourceOld extends ExternalSource {
 
     private static final String DEFAULT_NAME = "Test data source";
     private static final String DEFAULT_DESCRIPTION = "Generate source data according to the provided attribute list.";
 
     private static final int NUMBER_OF_EVENTS_PARAMETER_ID = 1;
 
-    public TestSource(UUID id, String name, String description) {
+    public TestSourceOld(UUID id, String name, String description) {
         super(id, name, description);
     }
 
-    private TestSource(UUID id, TestSource copyFromSource) {
+    private TestSourceOld(UUID id, TestSourceOld copyFromSource) {
         super(id, copyFromSource);
     }
 
-    public TestSource(TestSource copyFromSource) {
+    public TestSourceOld(TestSourceOld copyFromSource) {
         super(copyFromSource);
     }
 
@@ -66,25 +66,25 @@ public class TestSource extends ExternalSource {
     }
 
     @Override
-    public TestSource copyOf() {
-        return new TestSource(this);
+    public TestSourceOld copyOf() {
+        return new TestSourceOld(this);
     }
 
     @Override
-    public TestSource newInstance() {
+    public TestSourceOld newInstance() {
         UUID sourceId = Generators.timeBasedGenerator().generate();
-        return new TestSource(sourceId, this);
+        return new TestSourceOld(sourceId, this);
     }
 
     @Override
-    public TestSource newInstance(Gnode gnode) {
+    public TestSourceOld newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public static TestSource newTemplate() {
+    public static TestSourceOld newTemplate() {
         UUID sourceId = Generators.timeBasedGenerator().generate();
 
-        TestSource testSource = new TestSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+        TestSourceOld testSource = new TestSourceOld(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         testSource.setOutput(Output.outputWithId(1).setName("Output"));
         testSource.addParameter(
                 Parameter.integerParameterWithIdAndName(NUMBER_OF_EVENTS_PARAMETER_ID, "Number of Events").
@@ -102,12 +102,12 @@ public class TestSource extends ExternalSource {
 
     @Override
     public <T extends ExternalSource> CompiledExternalSource compile(T source) throws ValidationException {
-        return new CompiledTestSource((TestSource)source);
+        return new CompiledTestSource((TestSourceOld)source);
     }
 
     static class CompiledTestSource implements CompiledExternalSource {
 
-        private final TestSource source;
+        private final TestSourceOld source;
 
         /**
          * Running is declared volatile because it may be access my different threads
@@ -115,7 +115,7 @@ public class TestSource extends ExternalSource {
         private volatile boolean running;
         private final long SLIEEP_TIME = 1L;
 
-        public CompiledTestSource(TestSource source) {
+        public CompiledTestSource(TestSourceOld source) {
             this.source = source;
         }
 

@@ -52,7 +52,7 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class Sma extends AbstractProcessor<Double> {
+public class SmaOld extends AbstractProcessor<Double> {
     
     private static final String DEFAULT_NAME = "SMA";
     private static final String DEFAULT_DESCRIPTION = "Simple Moving Average";
@@ -74,15 +74,15 @@ public class Sma extends AbstractProcessor<Double> {
     private static final int INPUT_ID = 1;
     private static final int OUTPUT_ID = 1;
 
-    protected Sma(UUID id, String name, String description) {
+    protected SmaOld(UUID id, String name, String description) {
         super(id, name, description);
     }
 
-    protected Sma(UUID id, Sma copyFromSma) {
+    protected SmaOld(UUID id, SmaOld copyFromSma) {
         super(id, copyFromSma);
     }
 
-    protected Sma(Sma copyFromSma) {
+    protected SmaOld(SmaOld copyFromSma) {
         super(copyFromSma);
     }
 
@@ -101,30 +101,30 @@ public class Sma extends AbstractProcessor<Double> {
     }
 
     @Override
-    public Sma newInstance() {
-        return new Sma(Generators.timeBasedGenerator().generate(), this);
+    public SmaOld newInstance() {
+        return new SmaOld(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
-    public Sma newInstance(Gnode gnode) {
+    public SmaOld newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); 
 //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Sma copyOf() {
-        return new Sma(this);
+    public SmaOld copyOf() {
+        return new SmaOld(this);
     }
 
     /**
-     * Returns a new {@link Sma} processor configured with all the appropriate {@link org.lisapark.koctopus.core.parameter.Parameter}s, {@link Input}s
+     * Returns a new {@link SmaOld} processor configured with all the appropriate {@link org.lisapark.koctopus.core.parameter.Parameter}s, {@link Input}s
      * and {@link Output}.
      *
-     * @return new {@link Sma}
+     * @return new {@link SmaOld}
      */
-    public static Sma newTemplate() {
+    public static SmaOld newTemplate() {
         UUID processorId = Generators.timeBasedGenerator().generate();
-        Sma sma = new Sma(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+        SmaOld sma = new SmaOld(processorId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         // sma only has window length paramater
         sma.addParameter(
                 Parameter.integerParameterWithIdAndName(WINDOW_LENGTH_PARAMETER_ID, "Time window").
@@ -149,7 +149,7 @@ public class Sma extends AbstractProcessor<Double> {
     }
 
     /**
-     * {@link Sma}s need memory to store the prior events that will be used to calculate the average based on. We
+     * {@link SmaOld}s need memory to store the prior events that will be used to calculate the average based on. We
      * used a {@link MemoryProvider#createCircularBuffer(int)} to store this data.
      *
      * @param memoryProvider used to create sma's memory
@@ -171,7 +171,7 @@ public class Sma extends AbstractProcessor<Double> {
     public CompiledProcessor<Double> compile() throws ValidationException {
         validate();
         // we copy all the inputs and output taking a "snapshot" of this processor so we are isolated of changes
-        Sma copy = copyOf();
+        SmaOld copy = copyOf();
         return new CompiledSma(copy);
     }
 
@@ -196,7 +196,7 @@ public class Sma extends AbstractProcessor<Double> {
     static class CompiledSma extends CompiledProcessor<Double> {
         private final String inputAttributeName;
 
-        protected CompiledSma(Sma sma) {
+        protected CompiledSma(SmaOld sma) {
             super(sma);
             this.inputAttributeName = sma.getInput().getSourceAttributeName();
         }

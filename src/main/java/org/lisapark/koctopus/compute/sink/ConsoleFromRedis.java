@@ -47,7 +47,7 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  * @author alexmy
  */
 @Persistable
-public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
+public class ConsoleFromRedis extends AbstractNode implements ExternalSink {
 
     private static final String DEFAULT_NAME = "Console for Redis";
     private static final String DEFAULT_DESCRIPTION = "Console Output from Redis";
@@ -70,26 +70,26 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     
     protected Map<String, StreamReference> sourcerefs = new HashMap<>();
     
-    public ConsoleSinkRedis(){
+    public ConsoleFromRedis(){
         super(Generators.timeBasedGenerator().generate(), DEFAULT_NAME, DEFAULT_DESCRIPTION);
         input = Input.eventInputWithId(1);
         input.setName(DEFAULT_INPUT);
         input.setDescription(DEFAULT_INPUT);
     }
 
-    private ConsoleSinkRedis(UUID id, String name, String description) {
+    private ConsoleFromRedis(UUID id, String name, String description) {
         super(id, name, description);
         input = Input.eventInputWithId(1);
         input.setName(DEFAULT_INPUT);
         input.setDescription(DEFAULT_INPUT);
     }
 
-    private ConsoleSinkRedis(UUID id, ConsoleSinkRedis copyFromNode) {
+    private ConsoleFromRedis(UUID id, ConsoleFromRedis copyFromNode) {
         super(id, copyFromNode);
         input = copyFromNode.getInput().copyOf();
     }
 
-    private ConsoleSinkRedis(ConsoleSinkRedis copyFromNode) {
+    private ConsoleFromRedis(ConsoleFromRedis copyFromNode) {
         super(copyFromNode);
         this.input = copyFromNode.input.copyOf();
     }
@@ -135,30 +135,30 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     }
 
     @Override
-    public ConsoleSinkRedis newInstance() {
-        return new ConsoleSinkRedis(Generators.timeBasedGenerator().generate(), this);
+    public ConsoleFromRedis newInstance() {
+        return new ConsoleFromRedis(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
-    public ConsoleSinkRedis newInstance(Gnode gnode) {
+    public ConsoleFromRedis newInstance(Gnode gnode) {
         String uuid = gnode.getId() == null ? Generators.timeBasedGenerator().generate().toString() : gnode.getId();
-        ConsoleSinkRedis sink = newTemplate(UUID.fromString(uuid));
+        ConsoleFromRedis sink = newTemplate(UUID.fromString(uuid));
         GraphUtils.buildSink(sink, gnode);
         return sink;
     }
 
     @Override
-    public ConsoleSinkRedis copyOf() {
-        return new ConsoleSinkRedis(this);
+    public ConsoleFromRedis copyOf() {
+        return new ConsoleFromRedis(this);
     }
 
-    public static ConsoleSinkRedis newTemplate() {
+    public static ConsoleFromRedis newTemplate() {
         UUID sinkId = Generators.timeBasedGenerator().generate();
         return newTemplate(sinkId);
     }
 
-    public static ConsoleSinkRedis newTemplate(UUID sinkId) {
-        ConsoleSinkRedis consoleSink = new ConsoleSinkRedis(sinkId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+    public static ConsoleFromRedis newTemplate(UUID sinkId) {
+        ConsoleFromRedis consoleSink = new ConsoleFromRedis(sinkId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         consoleSink.addParameter(
                 Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Redis URL").
                         description("Redis URL.").
@@ -183,7 +183,7 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
 
     @Override
     public <T extends ExternalSink> CompiledExternalSink compile(T sink) throws ValidationException {
-        return new CompiledConsole((ConsoleSinkRedis) sink);
+        return new CompiledConsole((ConsoleFromRedis) sink);
     }
 
     @Override
@@ -197,12 +197,12 @@ public class ConsoleSinkRedis extends AbstractNode implements ExternalSink {
     }
 
     static class CompiledConsole extends CompiledExternalSink {
-        private final ConsoleSinkRedis sink;
+        private final ConsoleFromRedis sink;
         /**
          *
          * @param sink
          */
-        protected CompiledConsole(ConsoleSinkRedis sink) {
+        protected CompiledConsole(ConsoleFromRedis sink) {
             super(sink);
             this.sink = sink;
         }

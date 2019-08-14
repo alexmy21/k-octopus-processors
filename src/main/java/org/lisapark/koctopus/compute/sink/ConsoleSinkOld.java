@@ -46,7 +46,7 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class ConsoleSink extends AbstractNode implements ExternalSink {
+public class ConsoleSinkOld extends AbstractNode implements ExternalSink {
     private static final String DEFAULT_NAME = "Console";
     private static final String DEFAULT_DESCRIPTION = "Console Output";
     private static final String DEFAULT_INPUT = "Input";    
@@ -60,19 +60,19 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
     
     protected Map<String, StreamReference> sourceref = new HashMap<>();
 
-    private ConsoleSink(UUID id, String name, String description) {
+    private ConsoleSinkOld(UUID id, String name, String description) {
         super(id, name, description);
         input = Input.eventInputWithId(1);
         input.setName(DEFAULT_INPUT);
         input.setDescription(DEFAULT_INPUT);
     }
 
-    private ConsoleSink(UUID id, ConsoleSink copyFromNode) {
+    private ConsoleSinkOld(UUID id, ConsoleSinkOld copyFromNode) {
         super(id, copyFromNode);
         input = copyFromNode.getInput().copyOf();
     }
 
-    private ConsoleSink(ConsoleSink copyFromNode) {
+    private ConsoleSinkOld(ConsoleSinkOld copyFromNode) {
         super(copyFromNode);
         this.input = copyFromNode.input.copyOf();
     }
@@ -109,23 +109,23 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
     }
 
     @Override
-    public ConsoleSink newInstance() {
-        return new ConsoleSink(Generators.timeBasedGenerator().generate(), this);
+    public ConsoleSinkOld newInstance() {
+        return new ConsoleSinkOld(Generators.timeBasedGenerator().generate(), this);
     }
 
     @Override
-    public ConsoleSink newInstance(Gnode gnode) {
+    public ConsoleSinkOld newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public ConsoleSink copyOf() {
-        return new ConsoleSink(this);
+    public ConsoleSinkOld copyOf() {
+        return new ConsoleSinkOld(this);
     }
 
-    public static ConsoleSink newTemplate() {
+    public static ConsoleSinkOld newTemplate() {
         UUID sinkId = Generators.timeBasedGenerator().generate();
-        ConsoleSink consoleSink = new ConsoleSink(sinkId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+        ConsoleSinkOld consoleSink = new ConsoleSinkOld(sinkId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         
         consoleSink.addParameter(
                 Parameter.stringParameterWithIdAndName(ATTRIBUTE_LIST_PARAMETER_ID, ATTRIBUTE_LIST)
@@ -152,14 +152,14 @@ public class ConsoleSink extends AbstractNode implements ExternalSink {
 
     @Override
     public <T extends ExternalSink> CompiledExternalSink compile(T sink) throws ValidationException {
-        return new CompiledConsole((ConsoleSink) sink);
+        return new CompiledConsole((ConsoleSinkOld) sink);
     }
 
     static class CompiledConsole extends CompiledExternalSink {
         
-        private final ConsoleSink consoleSink; 
+        private final ConsoleSinkOld consoleSink; 
         
-        protected CompiledConsole(ConsoleSink processor) {
+        protected CompiledConsole(ConsoleSinkOld processor) {
             super(processor);
             this.consoleSink = processor;
         }
