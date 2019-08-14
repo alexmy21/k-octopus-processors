@@ -42,7 +42,6 @@ import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.ProcessorContext;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
-import org.openide.util.Exceptions;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
