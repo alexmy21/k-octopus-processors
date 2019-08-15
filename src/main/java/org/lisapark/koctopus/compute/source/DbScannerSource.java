@@ -44,8 +44,8 @@ import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import static com.google.common.base.Preconditions.checkState;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lisapark.koctopus.core.graph.Gnode;
-import org.openide.util.Exceptions;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
@@ -54,10 +54,8 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  */
 public class DbScannerSource  extends ExternalSource {
     
-     
-    private final static java.util.logging.Logger LOGGER 
-            = java.util.logging.Logger.getLogger(DbScannerSource.class.getName());
-    
+    static final Logger LOG = Logger.getLogger(DbScannerSource.class.getName());
+        
     private static final String DEFAULT_NAME = "Sql Query";
     private static final String DEFAULT_DESCRIPTION = "Database query source for events";
 
@@ -202,7 +200,7 @@ public class DbScannerSource  extends ExternalSource {
                 connection = getConnection(source.getDriverClass(), source.getUrl(), source.getUsername(), source.getPassword());
                 processResultSet(connection, runtime);                
             } catch (SQLException ex) {
-                Exceptions.printStackTrace(ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
             }            
         }
 
@@ -297,7 +295,7 @@ public class DbScannerSource  extends ExternalSource {
         @Override
         protected void finalize() throws Throwable{
             Connections.closeQuietly(connection);            
-            LOGGER.log(Level.INFO, "Connection: ====> {0}", "Closed!!!");            
+            LOG.log(Level.INFO, "Connection: ====> {0}", "Closed!!!");            
             super.finalize();            
         }
 

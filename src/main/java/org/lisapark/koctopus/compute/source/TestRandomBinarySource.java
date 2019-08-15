@@ -31,11 +31,12 @@ import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.openide.util.Exceptions;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
@@ -43,6 +44,8 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  */
 @Persistable
 public class TestRandomBinarySource extends ExternalSource {
+    
+    static final Logger LOG = Logger.getLogger(TestRandomBinarySource.class.getName());
 
     private static final String DEFAULT_NAME = "Test Random Binary";
     private static final String DEFAULT_DESCRIPTION = "Generate random binary source "
@@ -155,7 +158,7 @@ public class TestRandomBinarySource extends ExternalSource {
                 try {
                     Thread.sleep(SLIEEP_TIME);
                 } catch (InterruptedException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }
         }

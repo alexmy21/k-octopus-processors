@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -49,6 +51,8 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  * @author Alex Mylnikov (alexmy@lisa-park.com)
  */
 public class RTCAcontroller extends AbstractProcessor<Void> {
+    
+    static final Logger LOG = Logger.getLogger(RTCAcontroller.class.getName());
 
     private static final String DEFAULT_NAME = "RTC Async Controller";
     private static final String DEFAULT_DESCRIPTION = "Run Time Asynch Container Controller"
@@ -250,7 +254,7 @@ public class RTCAcontroller extends AbstractProcessor<Void> {
                         httpPost.setEntity(entity);
                         threads[i] = new GetThread(httpclient, httpPost, i + 1);
                     } catch (UnsupportedEncodingException ex) {
-                        Exceptions.printStackTrace(ex);
+                        LOG.log(Level.SEVERE, ex.getMessage());
                     }
                 }
 
@@ -266,13 +270,13 @@ public class RTCAcontroller extends AbstractProcessor<Void> {
                 done = true;
 
             } catch (IllegalStateException | JSONException | InterruptedException ex) {
-                Exceptions.printStackTrace(ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
             } finally {
                 if (httpclient != null) {
                     try {
                         httpclient.close();
                     } catch (IOException ex) {
-                        Exceptions.printStackTrace(ex);
+                        LOG.log(Level.SEVERE, ex.getMessage());
                     }
                 }
             }
@@ -303,7 +307,7 @@ public class RTCAcontroller extends AbstractProcessor<Void> {
                 CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
                 httpResponse.close();                
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
             }
         }
     }

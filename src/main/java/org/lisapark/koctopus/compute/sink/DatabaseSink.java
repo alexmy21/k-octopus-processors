@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lisapark.koctopus.core.AbstractNode;
 import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.ProcessingException;
@@ -41,7 +42,6 @@ import org.lisapark.koctopus.compute.util.Connections;
 import org.lisapark.koctopus.compute.util.DaoUtils;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
-import org.openide.util.Exceptions;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
@@ -49,9 +49,8 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  * @author Alex Mylnikov (alexmy@lisa-park.com)
  */
 public class DatabaseSink extends AbstractNode implements ExternalSink {
-
-    private final static java.util.logging.Logger LOGGER
-            = java.util.logging.Logger.getLogger(DatabaseSink.class.getName());
+    
+    static final Logger LOG = Logger.getLogger(DatabaseSink.class.getName());
 
     private static final String DEFAULT_NAME = "Database";
     private static final String DEFAULT_DESCRIPTION = "Output to Database.";
@@ -250,12 +249,12 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
 
                     String query = DaoUtils.insertQueryString(data, databaseSink.getTable(), null);
 
-                    LOGGER.log(Level.INFO, "Query: ====> {0}", query);
+                    LOG.log(Level.INFO, "Query: ====> {0}", query);
 
                     int key = DaoUtils.insert(query, null, connection);
 
                 } catch (SQLException | ProcessingException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             } else {
                 ctx.getStandardOut().println("event is null");
@@ -315,6 +314,6 @@ public class DatabaseSink extends AbstractNode implements ExternalSink {
     @Override
     public void complete() {
         Connections.closeQuietly(compiledExternalSink.connection);
-        LOGGER.log(Level.INFO, "Connection: ====> {0}", "Closed!!!");
+        LOG.log(Level.INFO, "Connection: ====> {0}", "Closed!!!");
     }
 }

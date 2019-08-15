@@ -36,14 +36,16 @@ import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.lisapark.koctopus.compute.sink.DatabaseSink;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.lisapark.koctopus.compute.util.Booleans;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.graph.Gnode;
-import org.openide.util.Exceptions;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
@@ -51,6 +53,8 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  */
 @Persistable
 public class GdeltZipSource extends ExternalSource {
+    
+    static final Logger LOG = Logger.getLogger(GdeltZipSource.class.getName());
 
     private static final String DEFAULT_NAME = "GDELT Zip File source";
     private static final String DEFAULT_DESCRIPTION = "Unzip file and convert to the stream of events.";
@@ -184,7 +188,7 @@ public class GdeltZipSource extends ExternalSource {
         try {
             initAttributeList(gdeltZipSource);
         } catch (ValidationException ex) {
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, ex.getMessage());
         }
 
         return gdeltZipSource;

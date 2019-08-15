@@ -20,6 +20,7 @@ import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.Persistable;
@@ -31,7 +32,6 @@ import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.openide.util.Exceptions;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
@@ -40,6 +40,8 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  */
 @Persistable
 public class RTCSource extends ExternalSource {
+    
+    static final Logger LOG = Logger.getLogger(RTCSource.class.getName());
 
     private static final String DEFAULT_NAME = "RTC Source";
     private static final String DEFAULT_DESCRIPTION = "Run Time Container Source Processor. Initiates Chained Model Work Flow.";
@@ -144,7 +146,7 @@ public class RTCSource extends ExternalSource {
                 try {
                     Thread.sleep(SLIEEP_TIME);
                 } catch (InterruptedException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }            
         }

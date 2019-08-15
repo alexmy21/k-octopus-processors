@@ -31,11 +31,12 @@ import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.openide.util.Exceptions;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
@@ -43,6 +44,8 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  */
 @Persistable
 public class TestSourceOld extends ExternalSource {
+    
+    static final Logger LOG = Logger.getLogger(TestSourceOld.class.getName());
 
     private static final String DEFAULT_NAME = "Test data source";
     private static final String DEFAULT_DESCRIPTION = "Generate source data according to the provided attribute list.";
@@ -136,7 +139,7 @@ public class TestSourceOld extends ExternalSource {
                 try {
                     Thread.sleep(SLIEEP_TIME);
                 } catch (InterruptedException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }
         }

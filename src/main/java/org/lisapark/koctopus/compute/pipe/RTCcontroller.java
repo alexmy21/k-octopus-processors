@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -42,7 +44,6 @@ import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.ProcessorContext;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
-import org.openide.util.Exceptions;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
@@ -50,6 +51,8 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  * @author Alex Mylnikov (alexmy@lisa-park.com)
  */
 public class RTCcontroller extends AbstractProcessor<Void> {
+    
+    static final Logger LOG = Logger.getLogger(RTCcontroller.class.getName());
 
     private static final String DEFAULT_NAME = "RTC Controller";
     private static final String DEFAULT_DESCRIPTION = "Run Time Container Controller"
@@ -251,7 +254,7 @@ public class RTCcontroller extends AbstractProcessor<Void> {
                         httpPost.setEntity(entity);
                         threads[i] = new GetThread(httpclient, httpPost, i + 1);
                     } catch (UnsupportedEncodingException ex) {
-                        Exceptions.printStackTrace(ex);
+                        LOG.log(Level.SEVERE, ex.getMessage());
                     }
                 }
 
@@ -267,13 +270,13 @@ public class RTCcontroller extends AbstractProcessor<Void> {
                 done = true;
 
             } catch (IllegalStateException | JSONException | InterruptedException ex) {
-                Exceptions.printStackTrace(ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
             } finally {
                 if (httpclient != null) {
                     try {
                         httpclient.close();
                     } catch (IOException ex) {
-                        Exceptions.printStackTrace(ex);
+                        LOG.log(Level.SEVERE, ex.getMessage());
                     }
                 }
             }
@@ -304,7 +307,7 @@ public class RTCcontroller extends AbstractProcessor<Void> {
                 CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
                 httpResponse.close();                
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
             }
         }
     }

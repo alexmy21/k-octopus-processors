@@ -31,20 +31,23 @@ import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.openide.util.Exceptions;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
 @Persistable
-public class DocFileSource extends ExternalSource {
+public class FileSource extends ExternalSource {
+    
+    static final Logger LOG = Logger.getLogger(FileSource.class.getName());
     
     private static final String DEFAULT_NAME = "Test data source for Redis";
     private static final String DEFAULT_DESCRIPTION = "Generate source data according to the provided attribute list.";
@@ -52,23 +55,23 @@ public class DocFileSource extends ExternalSource {
     private static final int NUMBER_OF_EVENTS_PARAMETER_ID = 1;
     private static final int TRANSPORT_PARAMETER_ID = 2;
     
-    private static void initAttributeList(DocFileSource testSource) throws ValidationException {
+    private static void initAttributeList(FileSource testSource) throws ValidationException {
         testSource.getOutput().addAttribute(Attribute.newAttribute(Integer.class, "Att"));
     }
     
-    public DocFileSource() {
+    public FileSource() {
         super(Generators.timeBasedGenerator().generate());
     }
     
-    public DocFileSource(UUID id, String name, String description) {
+    public FileSource(UUID id, String name, String description) {
         super(id, name, description);
     }
     
-    private DocFileSource(UUID id, DocFileSource copyFromSource) {
+    private FileSource(UUID id, FileSource copyFromSource) {
         super(id, copyFromSource);
     }
     
-    public DocFileSource(DocFileSource copyFromSource) {
+    public FileSource(FileSource copyFromSource) {
         super(copyFromSource);
     }
     
@@ -81,32 +84,32 @@ public class DocFileSource extends ExternalSource {
     }
     
     @Override
-    public DocFileSource copyOf() {
-        return new DocFileSource(this);
+    public FileSource copyOf() {
+        return new FileSource(this);
     }
     
     @Override
-    public DocFileSource newInstance() {
+    public FileSource newInstance() {
         UUID sourceId = Generators.timeBasedGenerator().generate();
-        return new DocFileSource(sourceId, this);
+        return new FileSource(sourceId, this);
     }
     
     @Override
-    public DocFileSource newInstance(Gnode gnode) {
+    public FileSource newInstance(Gnode gnode) {
         String uuid = gnode.getId() == null ? Generators.timeBasedGenerator().generate().toString() : gnode.getId();
-        DocFileSource testSource = newTemplate(UUID.fromString(uuid));
+        FileSource testSource = newTemplate(UUID.fromString(uuid));
         GraphUtils.buildSource(testSource, gnode);
         
         return testSource;
     }
    
-    public static DocFileSource newTemplate() {
+    public static FileSource newTemplate() {
         UUID sourceId = Generators.timeBasedGenerator().generate();
         return newTemplate(sourceId);
     }
     
-    public static DocFileSource newTemplate(UUID sourceId) {
-        DocFileSource testSource = new DocFileSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+    public static FileSource newTemplate(UUID sourceId) {
+        FileSource testSource = new FileSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
         testSource.setOutput(Output.outputWithId(1).setName("Output"));
         testSource.addParameter(
                 Parameter.integerParameterWithIdAndName(NUMBER_OF_EVENTS_PARAMETER_ID, "Number of Events").
@@ -121,7 +124,7 @@ public class DocFileSource extends ExternalSource {
         try {
             initAttributeList(testSource);
         } catch (ValidationException ex) {
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, ex.getMessage());
         }
         
         return testSource;
@@ -134,12 +137,12 @@ public class DocFileSource extends ExternalSource {
 
     @Override
     public <T extends ExternalSource> CompiledExternalSource compile(T source) throws ValidationException {
-        return new CompiledTestSource((DocFileSource)source);
+        return new CompiledTestSource((FileSource)source);
     }
     
     static class CompiledTestSource implements CompiledExternalSource {
         
-        private final DocFileSource source;
+        private final FileSource source;
 
         /**
          * Running is declared volatile because it may be access my different
@@ -148,11 +151,12 @@ public class DocFileSource extends ExternalSource {
         private volatile boolean running;
         private final long SLIEEP_TIME = 1L;
         
-        public CompiledTestSource(DocFileSource source) {
+        public CompiledTestSource(FileSource source) {
             this.source = source;
         }
         
         @Override
+        @SuppressWarnings("SleepWhileInLoop")
         public Integer startProcessingEvents(StreamingRuntime runtime) {             
             
             Thread thread = Thread.currentThread();
@@ -173,7 +177,7 @@ public class DocFileSource extends ExternalSource {
                     Thread.sleep(SLIEEP_TIME);
                 } catch (InterruptedException ex) {
                     status = GraphVocabulary.CANCEL;
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }
             return status;

@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -40,7 +41,6 @@ import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.openide.util.Exceptions;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
@@ -49,6 +49,8 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  */
 @Persistable
 public class KickStarterSource extends ExternalSource {
+    
+    static final Logger LOG = Logger.getLogger(KickStarterSource.class.getName());
 
     private static final String DEFAULT_NAME            = "Model Kickstarter";
     private static final String DEFAULT_DESCRIPTION     = "Kickstarts specified model on Octopus server.";
@@ -201,7 +203,7 @@ public class KickStarterSource extends ExternalSource {
                 runtime.sendEventFromSource(new Event(attributeData), this.source);
 
             } catch (IOException | IllegalStateException | JSONException ex) {
-                Exceptions.printStackTrace(ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
             }
         }
 

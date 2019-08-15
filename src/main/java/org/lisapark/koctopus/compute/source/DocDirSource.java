@@ -33,6 +33,8 @@ import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.graph.Gnode;
@@ -40,7 +42,7 @@ import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.openide.util.Exceptions;
+
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
@@ -48,6 +50,8 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  */
 @Persistable
 public class DocDirSource extends ExternalSource {
+
+    static final Logger LOG = Logger.getLogger(DocDirSource.class.getName());
 
     private static final String DEFAULT_NAME = "DocsFromDirectory";
     private static final String DEFAULT_DESCRIPTION = "Read documents from specified Directory.";
@@ -120,26 +124,25 @@ public class DocDirSource extends ExternalSource {
 
     public static DocDirSource newTemplate(UUID sourceId) {
         DocDirSource dirSource = new DocDirSource(sourceId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
-        dirSource.setOutput(Output.outputWithId(DIR_PATH).setName("Output"));
-
-        dirSource.addParameter(Parameter.stringParameterWithIdAndName(DIR_PATH, "Dir Path").
-                description("Directory path to read files from.").required(true));
-
-        dirSource.addParameter(Parameter.stringParameterWithIdAndName(FILE_NAME_FILTER, "File name filter").
-                description("File name regex.").defaultValue("*").required(true));
-
-        dirSource.addParameter(Parameter.stringParameterWithIdAndName(FILE_EXTENTION_FILTER, "File ext filter").
-                description("File ext regex.").defaultValue("*").required(true));
-
-        dirSource.addParameter(Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Redis URL").
-                description("Redis URL.").
-                defaultValue("redis://localhost"));
         try {
-            initAttributeList(dirSource);
-        } catch (ValidationException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+            dirSource.setOutput(Output.outputWithId(DIR_PATH).setName("Output"));
+            dirSource.addParameter(Parameter.stringParameterWithIdAndName(DIR_PATH, "Dir Path").
+                    description("Directory path to read files from.").required(true));
 
+            dirSource.addParameter(Parameter.stringParameterWithIdAndName(FILE_NAME_FILTER, "File name filter").
+                    description("File name regex.").defaultValue("*").required(true));
+
+            dirSource.addParameter(Parameter.stringParameterWithIdAndName(FILE_EXTENTION_FILTER, "File ext filter").
+                    description("File ext regex.").defaultValue("*").required(true));
+
+            dirSource.addParameter(Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Redis URL").
+                    description("Redis URL.").
+                    defaultValue("redis://localhost"));
+            initAttributeList(dirSource);
+
+        } catch (ValidationException ex) {
+            Logger.getLogger(DocDirSource.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return dirSource;
     }
 
@@ -192,13 +195,13 @@ public class DocDirSource extends ExternalSource {
                         });
             } catch (Exception e) {
                 status = GraphVocabulary.CANCEL;
-                Exceptions.printStackTrace(e);
+
             }
             return status;
         }
 
         private void write(List<Attribute> attributes, String fileName, StreamingRuntime runtime) {
-            Event e = createEvent(attributes, fileName.toString());
+            Event e = createEvent(attributes, fileName);
             runtime.writeEvents(e.getData(), source.getClass().getCanonicalName(), source.getId());
         }
 

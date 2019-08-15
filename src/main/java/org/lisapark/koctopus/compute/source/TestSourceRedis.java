@@ -31,13 +31,14 @@ import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
 import org.lisapark.koctopus.core.source.external.CompiledExternalSource;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.openide.util.Exceptions;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
@@ -45,6 +46,8 @@ import org.lisapark.koctopus.core.runtime.StreamingRuntime;
  */
 @Persistable
 public class TestSourceRedis extends ExternalSource {
+    
+    static final Logger LOG = Logger.getLogger(TestSourceRedis.class.getName());
     
     private static final String DEFAULT_NAME = "Test data source for Redis";
     private static final String DEFAULT_DESCRIPTION = "Generate source data according to the provided attribute list.";
@@ -121,7 +124,7 @@ public class TestSourceRedis extends ExternalSource {
         try {
             initAttributeList(testSource);
         } catch (ValidationException ex) {
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, ex.getMessage());
         }
         
         return testSource;
@@ -173,7 +176,7 @@ public class TestSourceRedis extends ExternalSource {
                     Thread.sleep(SLIEEP_TIME);
                 } catch (InterruptedException ex) {
                     status = GraphVocabulary.CANCEL;
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }
             return status;

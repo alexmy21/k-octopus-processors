@@ -22,11 +22,10 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>            
-            <plugin>
+            <!--plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <dependencies>
-                    <!-- We need the db4o tooling for enhancing stuff -->
                     <dependency>
                         <groupId>com.db4o</groupId>
                         <artifactId>db4o-tools-java5</artifactId>
@@ -41,7 +40,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
     <name>k-octopus-compute</name>
@@ -51,17 +50,16 @@
             <artifactId>jackson-datatype-guava</artifactId>
             <version>2.2.0</version>
         </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>k-octopus-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.sparkjava</groupId>
             <artifactId>spark-core</artifactId>
             <version>2.5</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>k-octopus-core</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
