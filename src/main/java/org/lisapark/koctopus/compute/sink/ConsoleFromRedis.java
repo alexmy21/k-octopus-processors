@@ -72,7 +72,7 @@ public class ConsoleFromRedis extends AbstractNode implements ExternalSink {
     
     public ConsoleFromRedis(){
         super(Generators.timeBasedGenerator().generate(), DEFAULT_NAME, DEFAULT_DESCRIPTION);
-        input = Input.eventInputWithId(1);
+        input = Input.eventInputWithId(INPUT_ID);
         input.setName(DEFAULT_INPUT);
         input.setDescription(DEFAULT_INPUT);
     }

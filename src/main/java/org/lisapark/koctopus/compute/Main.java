@@ -20,7 +20,7 @@ import com.fasterxml.uuid.Generators;
 import com.google.gson.Gson;
 import java.util.UUID;
 import org.lisapark.koctopus.compute.processor.sma.SmaRedis;
-import org.lisapark.koctopus.compute.sink.ConsoleFromRedis;
+import org.lisapark.koctopus.compute.sink.lucene.LuceneBaseIndex;
 import org.lisapark.koctopus.compute.source.TestSourceRedis;
 import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.graph.Gnode;
@@ -67,7 +67,7 @@ public class Main {
         sma.getInput().connectSource(source);
         model.addProcessor(sma);
 
-        ConsoleFromRedis sink = ConsoleFromRedis.newTemplate();
+        LuceneBaseIndex sink = LuceneBaseIndex.newTemplate();
         sink.getInput().connectSource(sma);
         model.addExternalSink(sink);
 

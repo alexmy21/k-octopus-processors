@@ -157,7 +157,6 @@ public class SmaRedis extends AbstractProcessor<Double> {
                         defaultValue(10).required(true).
                         constraint(Constraints.integerConstraintWithMinimumAndMessage(1, "Time window should be greater than 1."))
         );
-
         sma.addParameter(
                 Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Redis URL").
                         description("Redis URL.").

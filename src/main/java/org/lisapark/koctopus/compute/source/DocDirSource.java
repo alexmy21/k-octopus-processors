@@ -190,7 +190,8 @@ public class DocDirSource extends ExternalSource {
                             String[] split = fileName.split("\\.");
                             if (split.length == 2 && split[0].matches(filepattern) && split[1].matches(extpattern)
                                     || split.length < 2 && fileName.matches(filepattern)) {
-                                write(attributes, fileName, runtime);
+                                String _fileName = file.toAbsolutePath().toString();
+                                write(attributes, _fileName, runtime);
                             }
                         });
             } catch (Exception e) {

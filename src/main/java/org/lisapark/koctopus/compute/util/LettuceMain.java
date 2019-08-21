@@ -5,14 +5,11 @@ package org.lisapark.koctopus.compute.util;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XReadArgs;
 import io.lettuce.core.XReadArgs.StreamOffset;
 import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.api.sync.RedisStreamCommands;
 import java.util.List;
 
@@ -36,8 +33,8 @@ public class LettuceMain {
         } else { // no message was read
 
         }
-        
-         List<StreamMessage<String, String>> messages_1 = streamCommands
+
+        List<StreamMessage<String, String>> messages_1 = streamCommands
                 .xread(XReadArgs.Builder.count(5),
                         StreamOffset.from("org.lisapark.koctopus.compute.source.TestSourceRedis:535aaf83-da25-49cc-87a1-dd0a64c9c764", "5"));
 
