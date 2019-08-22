@@ -45,7 +45,6 @@ import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.ProcessorContext;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -266,10 +265,8 @@ public class RTCcontroller extends AbstractProcessor<Void> {
 
                 done = true;
 
-            } catch (IllegalStateException | JSONException | InterruptedException ex) {
+            } catch (IllegalStateException | JSONException | InterruptedException | UnsupportedEncodingException ex) {
                 LOG.log(Level.SEVERE, ex.getMessage());
-            } catch (UnsupportedEncodingException ex) {
-                Exceptions.printStackTrace(ex);
             } finally {
                 if (httpclient != null) {
                     try {

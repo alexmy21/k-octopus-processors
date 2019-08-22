@@ -9,12 +9,15 @@ package org.lisapark.koctopus.compute.util;
  *
  * @author alexmy
  */
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
-import org.openide.util.Exceptions;
 
 public class Json2Xml {
+    
+    static final Logger LOG = Logger.getLogger(Json2Xml.class.getName());
 
     public static void main(String... s) {
         try {
@@ -26,7 +29,7 @@ public class Json2Xml {
 
             System.out.println(xml_data);
         } catch (JSONException ex) {
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, ex.getMessage());
         }
     }
 }

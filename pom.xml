@@ -22,25 +22,30 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>            
-            <!--plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.db4o</groupId>
-                        <artifactId>db4o-tools-java5</artifactId>
-                        <version>8.1-SNAPSHOT</version>
-                    </dependency>
-                </dependencies>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.lisapark.koctopus.compute.ComputeService</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
                 <executions>
                     <execution>
-                        <phase>compile</phase>                        
+                        <id>assemble-all</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
-            </plugin-->
+            </plugin>
         </plugins>
     </build>
     <name>k-octopus-compute</name>

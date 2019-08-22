@@ -63,7 +63,6 @@ import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.CompiledExternalSink;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
-import org.openide.util.Exceptions;
 
 /**
  * @author alexmy
