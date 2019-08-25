@@ -1,4 +1,4 @@
-# K-Octopus Designer 
+# K-Octopus Compute 
 ## Common info and requirements
 Octopus platform is built on a set of processors. Processors can be organized in the Model to perform processing workflow. There are four distinguish types of processors:
 1. **Source processors**, that allow Octopus model to connect to multiple data source, that can include Relational Databases, NoSQL databases, distributed data storage like Hadoop, File systems, Streaming data, media file and so on;
