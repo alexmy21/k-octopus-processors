@@ -23,3 +23,8 @@ There are four K-Octopus projects/modules that are ready for demo so far (the ot
 There are direct inter-dependencies between these project in the order from 1 to 4. So, building of those projects should follow the same order, starting from K-Octopus Core and ending with K-Octopus Designer. 
 
 All projects require Java 8. This limitation is due to commercial software that we are using in Designer (http://www.jidesoft.com/). The version 3.4.7 that we are using is not compatible with Java 9+.
+
+## K-Octopus Compute installation
+By this time you should have octopus directory. From "octopus" directory run
+> git clone https://github.com/a-matrixlab/k-octopus-compute.git
+
