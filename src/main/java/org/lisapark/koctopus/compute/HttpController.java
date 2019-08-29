@@ -16,12 +16,10 @@
  */
 package org.lisapark.koctopus.compute;
 
-import org.lisapark.koctopus.compute.util.ServiceUtils;
+import org.lisapark.koctopus.repo.util.ServiceUtils;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
-import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.runtime.BaseController;
-import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
 import spark.Request;
 import spark.Response;
 
@@ -68,8 +66,7 @@ public class HttpController extends BaseController {
         res.raw();
         if (!ServiceUtils.validateInput(requestJson)) {
             res.status(Status.ERROR.getStatusCode());
-        } else {            
-            
+        } else { 
             result = process(requestJson);
             if(result == null){
                 res.status(Status.ERROR.getStatusCode());

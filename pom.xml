@@ -64,7 +64,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>k-octopus-core</artifactId>
+            <artifactId>k-octopus-repo</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
