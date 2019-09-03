@@ -29,8 +29,6 @@ import spark.Response;
  */
 public class HttpController extends BaseController {
 
-    private static final String DEFAULT_TRANSPORT_URL = "redis://localhost";
-
     enum Status {
         SUCCESS(200),
         ERROR(400);
