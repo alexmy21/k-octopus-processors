@@ -17,10 +17,6 @@
 package org.lisapark.koctopus.compute;
 
 import java.util.logging.Logger;
-import org.lisapark.koctopus.repo.util.ServiceUtils;
-import org.lisapark.koctopus.core.ProcessingException;
-import org.lisapark.koctopus.core.ValidationException;
-import org.lisapark.koctopus.core.runtime.BaseController;
 import spark.Request;
 import spark.Response;
 
@@ -28,42 +24,26 @@ import spark.Response;
  *
  * @author alexmy
  */
-public class HttpController extends BaseController {
 
-    static final Logger LOG = Logger.getLogger(HttpController.class.getName());    
-    
-    public HttpController(){
-        super();
-    }
+public class LivenessCheck {
+
+    static final Logger LOG = Logger.getLogger(LivenessCheck.class.getName());
 
     /**
      *
      * @param req
      * @param res
      * @return
-     * @throws ValidationException
-     * @throws ProcessingException
-     * @throws java.lang.InterruptedException
      */
-    public String startProcessing(Request req, Response res) throws ValidationException, ProcessingException, InterruptedException {
+    public int check(Request req, Response res) {
         String requestJson = req.body();
-        
+
         LOG.info(requestJson);
-        
-        String result = null;
+
         res.type("application/json;charset=utf8");
         res.header("content-type", "application/json;charset=utf8");
         res.raw();
-        if (!ServiceUtils.validateInput(requestJson)) {
-            res.status(Status.ERROR.getStatusCode());
-        } else { 
-            result = process(requestJson);
-            if(result == null){
-                res.status(Status.ERROR.getStatusCode());
-            } else {
-                res.status(Status.SUCCESS.getStatusCode());
-            }
-        }
-        return result;
+
+        return Status.SUCCESS.getStatusCode();
     }
 }

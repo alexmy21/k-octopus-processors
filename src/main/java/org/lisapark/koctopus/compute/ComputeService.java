@@ -16,6 +16,8 @@
  */
 package org.lisapark.koctopus.compute;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static spark.Spark.*;
 
 /**
@@ -23,23 +25,29 @@ import static spark.Spark.*;
  * @author alexmy
  */
 public class ComputeService {
+    
+    static final Logger LOG = Logger.getLogger(ComputeService.class.getName());
 
     public static void main(String[] args) {
         
-        System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
-        System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
-
-        
         // Set Server port
         int _port = 4567;
-        String endPoint = "/k-octopus/compute";
+        String endPoint = "/k-octopus/";
         if (args.length > 0) {
             _port = Integer.valueOf(args[0]);
         }
         port(_port);
+          
+        get(endPoint + "health", (req, res) -> {
+            LOG.log(Level.INFO, "{0}:{1}", new Object[]{endPoint, endPoint});
+            return new LivenessCheck().check(req, res);
+        });
+        
         // Map requests
-        post(endPoint, (req, res) -> {
+        post(endPoint + "compute", (req, res) -> {
+            LOG.log(Level.INFO, "{0}:{1}", new Object[]{endPoint, endPoint});
             return new HttpController().startProcessing(req, res);
         });
+      
     }
 }
