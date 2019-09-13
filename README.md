@@ -20,7 +20,7 @@ There are four K-Octopus projects/modules that are ready for demo so far (the ot
 3. K-Octopus Compute - this module responsible for executing processing models;
 4. K-Octopus Designer is a graphical, drag-and-drop tool to visually build an Octopus Model Execution Graph.
 
-There are direct inter-dependencies between these project in the order from 1 to 4. So, building of those projects should follow the same order, starting from K-Octopus Core and ending with K-Octopus Designer. 
+There are direct inter-dependencies between these projects in the order from 1 to 4. So, building of those projects should follow the same order, starting from K-Octopus Core and ending with K-Octopus Designer. 
 
 All projects require Java 8. This limitation is due to commercial software that we are using in Designer (http://www.jidesoft.com/). The version 3.4.7 that we are using is not compatible with Java 9+.
 
