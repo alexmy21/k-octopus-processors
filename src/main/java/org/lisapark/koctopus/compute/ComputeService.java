@@ -46,7 +46,7 @@ public class ComputeService {
         // Map requests
         post(endPoint + "compute", (req, res) -> {
             LOG.log(Level.INFO, "{0}:{1}", new Object[]{endPoint, "compute"});
-            return new HttpController().startProcessing(req, res);
+            return new HttpEndPoint().startProcessing(req, res);
         });
       
     }

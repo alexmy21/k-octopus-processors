@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import org.lisapark.koctopus.repo.util.ServiceUtils;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
-import org.lisapark.koctopus.core.runtime.BaseController;
+import org.lisapark.koctopus.core.runtime.BaseExecutor;
 import spark.Request;
 import spark.Response;
 
@@ -28,11 +28,11 @@ import spark.Response;
  *
  * @author alexmy
  */
-public class HttpController extends BaseController {
+public class HttpEndPoint extends BaseExecutor {
 
-    static final Logger LOG = Logger.getLogger(HttpController.class.getName());    
+    static final Logger LOG = Logger.getLogger(HttpEndPoint.class.getName());    
     
-    public HttpController(){
+    public HttpEndPoint(){
         super();
     }
 
