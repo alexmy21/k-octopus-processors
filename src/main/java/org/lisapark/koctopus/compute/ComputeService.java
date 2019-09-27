@@ -39,13 +39,13 @@ public class ComputeService {
         port(_port);
           
         get(endPoint + "health", (req, res) -> {
-            LOG.log(Level.INFO, "{0}:{1}", new Object[]{endPoint, endPoint});
+            LOG.log(Level.INFO, "{0}:{1}", new Object[]{endPoint, "health"});
             return new LivenessCheck().check(req, res);
         });
         
         // Map requests
         post(endPoint + "compute", (req, res) -> {
-            LOG.log(Level.INFO, "{0}:{1}", new Object[]{endPoint, endPoint});
+            LOG.log(Level.INFO, "{0}:{1}", new Object[]{endPoint, "compute"});
             return new HttpController().startProcessing(req, res);
         });
       

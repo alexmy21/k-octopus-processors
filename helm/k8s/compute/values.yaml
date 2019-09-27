@@ -1,0 +1,7 @@
+environment: development
+container:
+  name: compute
+  port: 4567
+  image: alexmy/k-octopus-compute
+  tag: 
+replicas: 3

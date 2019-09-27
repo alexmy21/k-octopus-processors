@@ -1,4 +1,3 @@
-package org.lisapark.koctopus.compute;
 
 /* 
  * Copyright (C) 2019 Lisa Park, Inc. (www.lisa-park.net)
@@ -16,6 +15,8 @@ package org.lisapark.koctopus.compute;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.lisapark.koctopus.compute;
+
 import com.fasterxml.uuid.Generators;
 import com.google.gson.Gson;
 import java.util.UUID;
@@ -25,7 +26,7 @@ import org.lisapark.koctopus.repo.source.TestSourceRedis;
 import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.Graph;
-import org.lisapark.koctopus.core.graph.GraphUtils;
+import org.lisapark.koctopus.repo.graph.GraphUtils;
 
 /**
  *

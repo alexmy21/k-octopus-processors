@@ -1,0 +1,4 @@
+name: compute
+sources:
+- https://github.com/a-matrixlab/k-octopus-compute
+version: 0.7.2
