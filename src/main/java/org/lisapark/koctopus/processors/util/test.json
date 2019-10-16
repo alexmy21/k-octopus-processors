@@ -1,0 +1,55 @@
+{
+    "id": "6ffba823-44d5-4864-a59a-c7ed7c56d097",
+    "type": "PROCESSING_GRAPH",
+    "label": "Test",
+    "properties": {
+        "TRANSPORT_URL": "redis://localhost"
+    },
+    "directed": true,
+    "nodes": [{
+            "id": "e1a632bc-dac4-448f-a5df-2b63cc7fa943",
+            "type": "org.lisapark.koctopus.compute.source.TestSourceRedis",
+            "label": "SOURCE",
+            "properties": {
+                "1": 10.0,
+                "2": "redis://localhost"
+            },
+            "propertiesOut": {
+                "Att": "java.lang.Integer"
+            }
+        }, {
+            "id": "2aebcda9-33b9-476a-93d7-2fa3f68293dc",
+            "type": "org.lisapark.koctopus.compute.processor.sma.Sma",
+            "label": "PROCESSOR",
+            "properties": {
+                "1": 10.0
+            },
+            "propertiesIn": {
+                "Att": "java.lang.Integer"
+            },
+            "propertiesOut": {
+                "average": "java.lang.Double"
+            }
+        }, {
+            "id": "45d1a20f-216d-4f5a-9296-d255f16cfb45",
+            "type": "org.lisapark.koctopus.compute.sink.ConsoleSinkRedis",
+            "label": "SINK",
+            "properties": {},
+            "propertiesIn": {
+                "average": "java.lang.Double"
+            }
+        }],
+    "edges": [{
+            "source": "org.lisapark.koctopus.compute.source.TestSourceRedis:e1a632bc-dac4-448f-a5df-2b63cc7fa943",
+            "relation": "Input",
+            "target": "org.lisapark.koctopus.compute.processor.sma.Sma:2aebcda9-33b9-476a-93d7-2fa3f68293dc",
+            "directed": true,
+            "label": "MODEL"
+        }, {
+            "source": "org.lisapark.koctopus.compute.processor.sma.Sma:2aebcda9-33b9-476a-93d7-2fa3f68293dc",
+            "relation": "Input",
+            "target": "org.lisapark.koctopus.compute.sink.ConsoleSinkRedis:45d1a20f-216d-4f5a-9296-d255f16cfb45",
+            "directed": true,
+            "label": "MODEL"
+        }]
+}

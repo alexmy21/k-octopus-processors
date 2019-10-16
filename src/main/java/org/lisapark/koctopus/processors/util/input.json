@@ -1,0 +1,13 @@
+{
+    "average": [{
+            "first": "TYPE",
+            "second": "java.lang.Double"
+        }],
+    "Input": [{
+            "first": "SOURCE_ID",
+            "second": "feea40c4-637e-4d60-95a6-77cff39b36de"
+        }, {
+            "first": "SOURCE_CLASS",
+            "second": "org.lisapark.koctopus.compute.processor.sma.Sma"
+        }]
+}

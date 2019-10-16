@@ -1,0 +1,153 @@
+{
+    "id": "1914c7ff-8a98-48d9-9baa-8ba8a904371c",
+    "type": "org.lisapark.koctopus.core.runtime.OctopusRunner",
+    "label": "MODEL",
+    "params": {
+        "params": {
+            "0": {
+                "id": 0,
+                "name": "TRANSPORT_URL",
+                "className": "java.lang.String",
+                "value": "redis://localhost"
+            }
+        }
+    },
+    "directed": true,
+    "nodes": [{
+            "id": "6459c484-70b4-41fd-9768-3f054c4ace71",
+            "type": "org.lisapark.koctopus.compute.source.TestSourceRedis",
+            "label": "SOURCE",
+            "transportUrl": "redis://localhost",
+            "color": "untouched",
+            "params": {
+                "params": {
+                    "1": {
+                        "id": 1,
+                        "name": "Number of Events",
+                        "className": "java.lang.Integer",
+                        "value": 100.0
+                    },
+                    "2": {
+                        "id": 2,
+                        "name": "Redis URL",
+                        "className": "java.lang.String",
+                        "value": "redis://localhost"
+                    }
+                }
+            },
+            "output": {
+                "id": 1,
+                "name": "Output",
+                "attributes": {
+                    "Att": {
+                        "name": "Att",
+                        "className": "java.lang.Integer"
+                    }
+                }
+            }
+        }, {
+            "id": "4dd79307-fd6a-47d3-9ba8-7dd7f21747a4",
+            "type": "org.lisapark.koctopus.compute.processor.sma.SmaRedis",
+            "label": "PROCESSOR",
+            "transportUrl": "redis://localhost",
+            "color": "untouched",
+            "params": {
+                "params": {
+                    "1": {
+                        "id": 1,
+                        "name": "Redis URL",
+                        "className": "java.lang.String",
+                        "value": "redis://localhost"
+                    },
+                    "2": {
+                        "id": 2,
+                        "name": "Time window",
+                        "className": "java.lang.Integer",
+                        "value": 10.0
+                    }
+                }
+            },
+            "input": {
+                "sources": {
+                    "Input": {
+                        "id": 1,
+                        "name": "Input",
+                        "sourceClassName": "org.lisapark.koctopus.compute.source.TestSourceRedis",
+                        "sourceId": "6459c484-70b4-41fd-9768-3f054c4ace71",
+                        "attributes": {
+                            "Att": {
+                                "name": "Att",
+                                "className": "java.lang.Integer"
+                            }
+                        }
+                    }
+                }
+            },
+            "output": {
+                "id": 1,
+                "name": "SMA",
+                "attributes": {
+                    "average": {
+                        "name": "average",
+                        "className": "java.lang.Double"
+                    }
+                }
+            }
+        }, {
+            "id": "a77f5564-8ebe-4414-a503-f4e0c3e0e7a2",
+            "type": "org.lisapark.koctopus.compute.sink.ConsoleSinkRedis",
+            "label": "SINK",
+            "transportUrl": "redis://localhost",
+            "color": "untouched",
+            "params": {
+                "params": {
+                    "0": {
+                        "id": 0,
+                        "name": "Redis URL",
+                        "className": "java.lang.String",
+                        "value": "redis://localhost"
+                    },
+                    "1": {
+                        "id": 1,
+                        "name": "Show Attributes",
+                        "className": "java.lang.String"
+                    },
+                    "2": {
+                        "id": 2,
+                        "name": "Page size",
+                        "className": "java.lang.Integer",
+                        "value": 100.0
+                    }
+                }
+            },
+            "input": {
+                "sources": {
+                    "Input": {
+                        "id": 1,
+                        "name": "Input",
+                        "sourceClassName": "org.lisapark.koctopus.compute.processor.sma.SmaRedis",
+                        "sourceId": "4dd79307-fd6a-47d3-9ba8-7dd7f21747a4",
+                        "attributes": {
+                            "average": {
+                                "name": "average",
+                                "className": "java.lang.Double"
+                            }
+                        }
+                    }
+                }
+            }
+        }],
+    "edges": [{
+            "source": "org.lisapark.koctopus.compute.source.TestSourceRedis:6459c484-70b4-41fd-9768-3f054c4ace71",
+            "relation": "Input",
+            "target": "org.lisapark.koctopus.compute.processor.sma.SmaRedis:4dd79307-fd6a-47d3-9ba8-7dd7f21747a4",
+            "directed": true,
+            "label": "MODEL"
+        }, {
+            "source": "org.lisapark.koctopus.compute.processor.sma.SmaRedis:4dd79307-fd6a-47d3-9ba8-7dd7f21747a4",
+            "relation": "Input",
+            "target": "org.lisapark.koctopus.compute.sink.ConsoleSinkRedis:a77f5564-8ebe-4414-a503-f4e0c3e0e7a2",
+            "directed": true,
+            "label": "MODEL"
+        }]
+}

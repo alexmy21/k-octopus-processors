@@ -3,11 +3,19 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.lisapark</groupId>
     <artifactId>k-octopus-processors</artifactId>
-    <version>0.7</version>
+    <version>0.7.3</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+    <name>k-octopus-processors</name>
+    <dependencies>
+        <dependency>
+            <groupId>k-octopus</groupId>
+            <artifactId>k-octopus-repo</artifactId>
+            <version>0.7.3</version>
+        </dependency>
+    </dependencies>
 </project>
