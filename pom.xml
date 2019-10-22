@@ -14,6 +14,11 @@
     <dependencies>
         <dependency>
             <groupId>k-octopus</groupId>
+            <artifactId>k-octopus-core</artifactId>
+            <version>0.7.3</version>
+        </dependency>
+        <dependency>
+            <groupId>k-octopus</groupId>
             <artifactId>k-octopus-repo</artifactId>
             <version>0.7.3</version>
         </dependency>

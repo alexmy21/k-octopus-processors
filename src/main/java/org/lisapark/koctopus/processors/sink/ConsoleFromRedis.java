@@ -58,18 +58,18 @@ public class ConsoleFromRedis extends AbstractExternalSink {
     private static final String ATTRIBUTE_LIST = "Show Attributes";
     private static final String ATTRIBUTE_LIST_DESCRIPTION
             = "List comma separated attribute names that you would like to show on Console. Empty - will show all attributes.";
-    
+
     private static final String PAGE_SIZE = "Page size";
     private static final String PAGE_SIZE_DESCRIPTION
             = "Page size description goes here.";
-    
+
     private static final int INPUT_ID = 0;
-    
+
     private final Input<Event> input;
-    
+
     protected Map<String, TransportReference> sourcerefs = new HashMap<>();
-    
-    public ConsoleFromRedis(){
+
+    public ConsoleFromRedis() {
         super(Generators.timeBasedGenerator().generate(), DEFAULT_NAME, DEFAULT_DESCRIPTION);
         input = Input.eventInputWithId(INPUT_ID);
         input.setName(DEFAULT_INPUT);
@@ -78,7 +78,7 @@ public class ConsoleFromRedis extends AbstractExternalSink {
 
     private ConsoleFromRedis(UUID id, String name, String description) {
         super(id, name, description);
-        input = Input.eventInputWithId(1);
+        input = Input.eventInputWithId(INPUT_ID);
         input.setName(DEFAULT_INPUT);
         input.setDescription(DEFAULT_INPUT);
     }
@@ -89,7 +89,7 @@ public class ConsoleFromRedis extends AbstractExternalSink {
     }
 
     private ConsoleFromRedis(ConsoleFromRedis copyFromNode) {
-        super(copyFromNode.getId(),copyFromNode.getName(), copyFromNode.getDescription());
+        super(copyFromNode.getId(), copyFromNode.getName(), copyFromNode.getDescription());
         this.input = copyFromNode.input.copyOf();
     }
 
@@ -101,7 +101,7 @@ public class ConsoleFromRedis extends AbstractExternalSink {
     public String getAttributeList() {
         return getParameter(ATTRIBUTE_LIST_PARAMETER_ID).getValueAsString();
     }
-    
+
     @SuppressWarnings("unchecked")
     public void setPageSize(Integer pageSize) throws ValidationException {
         getParameter(PAGE_SIZE_PARAMETER_ID).setValue(pageSize);
@@ -110,12 +110,12 @@ public class ConsoleFromRedis extends AbstractExternalSink {
     public Integer getPageSize() {
         return getParameter(PAGE_SIZE_PARAMETER_ID).getValueAsInteger();
     }
- 
+
     @Override
     public List<? extends Input> getInputs() {
         return ImmutableList.of(input);
     }
-   
+
     public Input getInput() {
         return input;
     }
@@ -158,16 +158,16 @@ public class ConsoleFromRedis extends AbstractExternalSink {
 
     public static ConsoleFromRedis newTemplate(UUID sinkId) {
         ConsoleFromRedis consoleSink = new ConsoleFromRedis(sinkId, DEFAULT_NAME, DEFAULT_DESCRIPTION);
-                
+
         consoleSink.addParameter(
                 Parameter.stringParameterWithIdAndName(ATTRIBUTE_LIST_PARAMETER_ID, ATTRIBUTE_LIST)
                         .description(ATTRIBUTE_LIST_DESCRIPTION)
-        );        
+        );
         consoleSink.addParameter(
                 Parameter.integerParameterWithIdAndName(PAGE_SIZE_PARAMETER_ID, PAGE_SIZE)
                         .description(PAGE_SIZE_DESCRIPTION).defaultValue(100)
         );
-     
+
         return consoleSink;
     }
 
@@ -182,7 +182,7 @@ public class ConsoleFromRedis extends AbstractExternalSink {
     }
 
     @Override
-    public Map<String,TransportReference> getReferences() {
+    public Map<String, TransportReference> getReferences() {
         return sourcerefs;
     }
 
@@ -192,7 +192,9 @@ public class ConsoleFromRedis extends AbstractExternalSink {
     }
 
     static class CompiledConsole extends CompiledExternalSink {
+
         private final ConsoleFromRedis sink;
+
         /**
          *
          * @param sink
@@ -209,18 +211,18 @@ public class ConsoleFromRedis extends AbstractExternalSink {
          */
         @Override
         public synchronized Integer processEvent(Transport runtime) {
-            
+
             runtime.start();
-            
+
             String inputName = sink.getInput().getName();
             String sourceClassName = sink.getReferences().get(inputName).getReferenceClass();
             String sourceId = sink.getReferences().get(inputName).getReferenceId();
             int pageSize = sink.getPageSize();
-            
+
             String offset = "0";
             Integer status = GraphVocabulary.CANCEL;
             while (true) {
-                List<StreamMessage<String, String>> list;               
+                List<StreamMessage<String, String>> list;
                 list = runtime.readEvents(sourceClassName, UUID.fromString(sourceId), offset, pageSize);
                 if (list.size() > 0) { // a message was read                    
                     list.forEach(msg -> {
@@ -236,10 +238,10 @@ public class ConsoleFromRedis extends AbstractExternalSink {
                     status = GraphVocabulary.COMPLETE;
                     break;
                 }
-            }  
+            }
             runtime.shutdown();
-            
-            return status;          
+
+            return status;
         }
 
         /**
@@ -248,7 +250,8 @@ public class ConsoleFromRedis extends AbstractExternalSink {
          * @param eventsByInputId
          */
         @Override
-        public void processEvent(SinkContext ctx, Map<Integer, Event> eventsByInputId) {}
+        public void processEvent(SinkContext ctx, Map<Integer, Event> eventsByInputId) {
+        }
     }
 
     /**
