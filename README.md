@@ -28,6 +28,8 @@ All projects require Java 8. This limitation is due to commercial software that 
 By this time you should have octopus directory. From "octopus" directory run
 > git clone https://github.com/a-matrixlab/k-octopus-compute.git
 
+In case if you want to play with latest version, you can switch
+
 > git checkout k-octopus-compute_0.7.3
 
 K-Octopus Compute is a Http Service. Default end point is "http://hostname:4567/k-octopus/compute". This end point is the same for all Processing Models. Actually Octopus Compute builds processing model at runtime using execution graph as blue-print, and then executes it. 
