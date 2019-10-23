@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: compute
+  labels:
+    app: compute
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: compute
+  template:
+    metadata:
+      labels:
+        app: compute
+    spec:
+      containers:
+        - name: compute
+          image: alexmy/k-octopus-compute 
+          ports:
+          - containerPort: 4567

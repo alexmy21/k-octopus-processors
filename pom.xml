@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.lisapark</groupId>
+    <groupId>k-octopus</groupId>
     <artifactId>k-octopus-processors</artifactId>
     <version>0.7.3</version>
     <packaging>jar</packaging>
@@ -21,6 +21,13 @@
             <groupId>k-octopus</groupId>
             <artifactId>k-octopus-repo</artifactId>
             <version>0.7.3</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.sparkjava</groupId>
+            <artifactId>spark-core</artifactId>
+            <version>2.5</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 </project>
